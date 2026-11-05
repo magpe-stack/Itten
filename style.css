@@ -278,3 +278,93 @@ body.dark .fail { color: #ff9999; }
   .color-card { min-height: 152px; break-inside: avoid; }
   .copy-icon { display: none; }
 }
+
+
+/* ITTEN — abertura cinematográfica para PWA instalado em celulares */
+.itten-splash { display: none; }
+html.itten-splash-active .itten-splash {
+  display: grid;
+  place-items: center;
+  position: fixed;
+  inset: 0;
+  z-index: 2147483647;
+  overflow: hidden;
+  background: #050509;
+  color: #fff;
+  pointer-events: auto;
+  animation: itten-splash-exit 2000ms ease-in-out both;
+}
+.itten-splash-center {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  isolation: isolate;
+  transform: translateY(-2vh);
+}
+.itten-splash-halo {
+  position: absolute;
+  z-index: -1;
+  width: 270px;
+  height: 270px;
+  border-radius: 50%;
+  background: conic-gradient(from 30deg, #3457d5, #ae64b6, #d65a83, #f2a93b, #4bbca0, #3457d5);
+  filter: blur(62px);
+  opacity: 0;
+  animation: itten-halo 2000ms ease-in-out both;
+}
+.itten-splash-logo {
+  display: block;
+  width: 128px;
+  height: 128px;
+  object-fit: contain;
+  border-radius: 24px;
+  opacity: 0;
+  animation: itten-logo 2000ms cubic-bezier(.2,.7,.2,1) both;
+}
+.itten-splash-name {
+  margin-top: 28px;
+  font: 700 2.1rem/1.1 Inter, ui-sans-serif, system-ui, sans-serif;
+  letter-spacing: .38em;
+  padding-left: .38em;
+  opacity: 0;
+  animation: itten-wordmark 2000ms ease-out both;
+}
+.itten-splash-subtitle {
+  margin-top: 11px;
+  font: 500 .63rem/1.3 Inter, ui-sans-serif, system-ui, sans-serif;
+  letter-spacing: .23em;
+  padding-left: .23em;
+  color: #c8c9d3;
+  opacity: 0;
+  animation: itten-wordmark 2000ms ease-out both;
+}
+@keyframes itten-logo {
+  0%, 8% { opacity: 0; transform: scale(.78); filter: brightness(.65); }
+  22% { opacity: 1; }
+  65% { opacity: 1; transform: scale(1.06); filter: brightness(1.13); }
+  78% { opacity: 1; transform: scale(1.04); }
+  100% { opacity: 1; transform: scale(1.04); }
+}
+@keyframes itten-halo {
+  0%, 12% { opacity: 0; transform: scale(.65) rotate(-30deg); }
+  45% { opacity: .48; }
+  70% { opacity: .55; transform: scale(1.1) rotate(22deg); }
+  100% { opacity: .2; transform: scale(1.2) rotate(35deg); }
+}
+@keyframes itten-wordmark {
+  0%, 22% { opacity: 0; transform: translateY(14px); }
+  48%, 100% { opacity: 1; transform: translateY(0); }
+}
+@keyframes itten-splash-exit {
+  0%, 70% { opacity: 1; visibility: visible; }
+  100% { opacity: 0; visibility: hidden; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .itten-splash, .itten-splash * { animation: none !important; }
+  html.itten-splash-active .itten-splash { display: none !important; }
+}
+@media print {
+  .itten-splash { display: none !important; }
+}

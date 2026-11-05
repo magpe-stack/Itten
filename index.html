@@ -14,6 +14,19 @@
   <!-- Configuração PWA -->
   <link rel="manifest" href="./manifest.json">
 
+  <!-- Splash apenas em PWA instalado no celular; executado antes da renderização. -->
+  <script>
+    (() => {
+      const mobile = matchMedia('(max-width: 760px) and (pointer: coarse)').matches;
+      const installed = matchMedia('(display-mode: standalone)').matches ||
+        navigator.standalone === true;
+      const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (mobile && installed && !reduced) {
+        document.documentElement.classList.add('itten-splash-active');
+      }
+    })();
+  </script>
+
   <!-- Estilos -->
   <link rel="stylesheet" href="./style.css">
 
@@ -33,6 +46,16 @@
 </head>
 
 <body>
+  <!-- Abertura cinematográfica: somente no celular, em modo instalado. -->
+  <div id="ittenSplash" class="itten-splash" aria-hidden="true">
+    <div class="itten-splash-center">
+      <div class="itten-splash-halo"></div>
+      <img class="itten-splash-logo" src="./icon-192.png" alt="" width="128" height="128" fetchpriority="high">
+      <div class="itten-splash-name">ITTEN</div>
+      <div class="itten-splash-subtitle">LABORATÓRIO CROMÁTICO</div>
+    </div>
+  </div>
+
   <header class="topbar">
 
     <!-- Logotipo oficial -->
