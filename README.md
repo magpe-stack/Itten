@@ -91,6 +91,11 @@ A percepção de determinada cor pode variar conforme o contexto, a iluminação
 
 Essa compreensão das relações cromáticas constitui uma das inspirações centrais do aplicativo.
 
+<p align="center">
+  <img src="JohannesIttenCover.png" alt="Johannes Itten e o Itten PWA" width="100%">
+  <em>Johannes Itten explorando a teoria das cores no laboratório cromático Itten[cite: 1].</em>
+</p>
+
 ### 2.1. Os sete contrastes cromáticos
 
 Johannes Itten sistematizou sete modalidades de contraste:
