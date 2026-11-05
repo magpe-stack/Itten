@@ -1,18 +1,21 @@
 
 "use strict";
 
-const CACHE_NAME = "itten-static-v1";
+const CACHE_NAME = "itten-static-v2";
 
 const APP_SHELL = [
   "./",
   "./index.html",
   "./style.css",
   "./app.js",
-  "./manifest.json"
+  "./manifest.json",
+  "./icon-192.png",
+  "./icon-512.png"
 ];
 
-// Instalação atômica: só ativa o cache quando
-// todos os recursos essenciais estiverem disponíveis.
+// Instalação: armazena todos os recursos essenciais.
+// Se algum arquivo não existir, a instalação falhará,
+// evitando a ativação de um cache incompleto.
 self.addEventListener("install", event => {
   event.waitUntil(
     caches.open(CACHE_NAME)
@@ -21,24 +24,29 @@ self.addEventListener("install", event => {
   );
 });
 
-// Remove versões antigas para evitar arquivos incompatíveis.
+// Ativação: remove caches antigos do Itten.
 self.addEventListener("activate", event => {
   event.waitUntil(
     (async () => {
       const keys = await caches.keys();
+
       await Promise.all(
         keys
-          .filter(key => key.startsWith("itten-static-") &&
-                         key !== CACHE_NAME)
+          .filter(key =>
+            key.startsWith("itten-static-") &&
+            key !== CACHE_NAME
+          )
           .map(key => caches.delete(key))
       );
+
       await self.clients.claim();
     })()
   );
 });
 
-// Cache-first para arquivos locais.
-// Arquivos externos não são armazenados nem interceptados.
+// Estratégia cache-first para os recursos locais.
+// A aplicação permanece utilizável offline após
+// uma instalação bem-sucedida do Service Worker.
 self.addEventListener("fetch", event => {
   const request = event.request;
 
@@ -48,9 +56,9 @@ self.addEventListener("fetch", event => {
 
   if (url.origin !== self.location.origin) return;
 
-  if (!url.pathname.startsWith(
-    new URL(self.registration.scope).pathname
-  )) return;
+  const scopePath = new URL(self.registration.scope).pathname;
+
+  if (!url.pathname.startsWith(scopePath)) return;
 
   event.respondWith(
     (async () => {
@@ -70,6 +78,7 @@ self.addEventListener("fetch", event => {
       } catch (error) {
         if (request.mode === "navigate") {
           const fallback = await caches.match("./index.html");
+
           if (fallback) return fallback;
         }
 
