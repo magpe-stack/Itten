@@ -1,7 +1,18 @@
 
 "use strict";
 
-const CACHE_NAME = "itten-static-v2";
+/*
+ * ITTEN — LABORATÓRIO CROMÁTICO
+ * Service Worker — Versão 3
+ *
+ * Atualização:
+ * - Compatibilidade com a abertura cinematográfica.
+ * - Renovação do cache dos arquivos HTML, CSS e JS.
+ * - Funcionamento offline preservado.
+ * - Exclusão automática de caches antigos do Itten.
+ */
+
+const CACHE_NAME = "itten-static-v3";
 
 const APP_SHELL = [
   "./",
@@ -13,9 +24,10 @@ const APP_SHELL = [
   "./icon-512.png"
 ];
 
-// Instalação: armazena todos os recursos essenciais.
-// Se algum arquivo não existir, a instalação falhará,
-// evitando a ativação de um cache incompleto.
+// INSTALAÇÃO
+// Armazena os recursos essenciais antes da ativação.
+// Uma falha no download impede a instalação incompleta.
+
 self.addEventListener("install", event => {
   event.waitUntil(
     caches.open(CACHE_NAME)
@@ -24,7 +36,10 @@ self.addEventListener("install", event => {
   );
 });
 
-// Ativação: remove caches antigos do Itten.
+// ATIVAÇÃO
+// Remove caches antigos pertencentes ao Itten
+// e permite que a nova versão controle as páginas.
+
 self.addEventListener("activate", event => {
   event.waitUntil(
     (async () => {
@@ -44,9 +59,11 @@ self.addEventListener("activate", event => {
   );
 });
 
-// Estratégia cache-first para os recursos locais.
-// A aplicação permanece utilizável offline após
-// uma instalação bem-sucedida do Service Worker.
+// INTERCEPTAÇÃO DE REQUISIÇÕES
+// Utiliza cache-first para recursos locais.
+// Caso não exista uma cópia armazenada,
+// tenta buscar o recurso pela rede.
+
 self.addEventListener("fetch", event => {
   const request = event.request;
 
@@ -54,30 +71,50 @@ self.addEventListener("fetch", event => {
 
   const url = new URL(request.url);
 
+  // Não interceptar recursos externos.
   if (url.origin !== self.location.origin) return;
 
-  const scopePath = new URL(self.registration.scope).pathname;
+  // Restringir a atuação ao escopo do aplicativo.
+  const scopePath = new URL(
+    self.registration.scope
+  ).pathname;
 
   if (!url.pathname.startsWith(scopePath)) return;
 
   event.respondWith(
     (async () => {
-      const cached = await caches.match(request);
+      const cache = await caches.open(CACHE_NAME);
+
+      // Procurar primeiro no cache atual.
+      const cached = await cache.match(request);
 
       if (cached) return cached;
 
       try {
+        // Buscar recurso ainda não armazenado.
         const response = await fetch(request);
 
-        if (response.ok && response.type === "basic") {
-          const cache = await caches.open(CACHE_NAME);
-          await cache.put(request, response.clone());
+        // Armazenar respostas locais válidas.
+        if (
+          response.ok &&
+          response.type === "basic"
+        ) {
+          await cache.put(
+            request,
+            response.clone()
+          );
         }
 
         return response;
+
       } catch (error) {
+
+        // Se a navegação falhar offline,
+        // apresentar a página principal armazenada.
         if (request.mode === "navigate") {
-          const fallback = await caches.match("./index.html");
+          const fallback = await cache.match(
+            "./index.html"
+          );
 
           if (fallback) return fallback;
         }
