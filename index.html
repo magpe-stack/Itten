@@ -20,25 +20,42 @@
         <small>Laboratório cromático</small>
       </div>
     </div>
+
     <nav class="toolbar" aria-label="Menu principal">
       <button id="newBtn" type="button">Novo projeto</button>
       <button id="printBtn" type="button">Imprimir</button>
       <button id="importBtn" type="button">Importar</button>
+
       <div class="export-menu">
         <button id="exportBtn" type="button" aria-expanded="false" aria-controls="exportOptions">Exportar ▾</button>
         <div id="exportOptions" class="export-options" hidden>
-          <button data-export="json">JSON</button>
-          <button data-export="txt">TXT</button>
-          <button data-export="jpeg">JPEG</button>
-          <button data-export="css">CSS Tokens</button>
-          <button data-export="tailwind">Tailwind JS</button>
+          <button type="button" data-export="json">JSON</button>
+          <button type="button" data-export="txt">TXT</button>
+          <button type="button" data-export="jpeg">JPEG</button>
+          <button type="button" data-export="css">CSS Tokens</button>
+          <button type="button" data-export="tailwind">Tailwind JS</button>
         </div>
       </div>
+
       <button id="themeBtn" type="button" aria-label="Alternar tema" title="Alternar tema">☾</button>
-      <a class="icon-link" href="https://github.com/magpe-stack/Itten" target="_blank" rel="noopener noreferrer" aria-label="GitHub" title="Repositório GitHub">
-        <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true"><path d="M12 .8a11.2 11.2 0 0 0-3.54 21.83c.56.1.76-.24.76-.54v-2.1c-3.1.67-3.75-1.32-3.75-1.32-.5-1.28-1.23-1.62-1.23-1.62-1.01-.69.08-.68.08-.68 1.12.08 1.71 1.15 1.71 1.15 1 .1.78 2.06 3.26 1.45.1-.73.39-1.23.71-1.51-2.48-.28-5.09-1.24-5.09-5.54 0-1.22.44-2.22 1.15-3-.12-.28-.5-1.42.11-2.96 0 0 .94-.3 3.08 1.14a10.7 10.7 0 0 1 5.6 0c2.14-1.44 3.08-1.14 3.08-1.14.61 1.54.23 2.68.11 2.96.72.78 1.15 1.78 1.15 3 0 4.31-2.62 5.25-5.11 5.53.4.35.75 1.03.75 2.08v3.08c0 .3.2.65.77.54A11.2 11.2 0 0 0 12 .8Z"/></svg>
+
+      <a class="icon-link"
+         href="https://github.com/magpe-stack/Itten"
+         target="_blank"
+         rel="noopener noreferrer"
+         aria-label="GitHub"
+         title="Repositório GitHub">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true">
+          <path d="M12 .8a11.2 11.2 0 0 0-3.54 21.83c.56.1.76-.24.76-.54v-2.1c-3.1.67-3.75-1.32-3.75-1.32-.5-1.28-1.23-1.62-1.23-1.62-1.01-.69.08-.68.08-.68 1.12.08 1.71 1.15 1.71 1.15 1 .1.78 2.06 3.26 1.45.1-.73.39-1.23.71-1.51-2.48-.28-5.09-1.24-5.09-5.54 0-1.22.44-2.22 1.15-3-.12-.28-.5-1.42.11-2.96 0 0 .94-.3 3.08 1.14a10.7 10.7 0 0 1 5.6 0c2.14-1.44 3.08-1.14 3.08-1.14.61 1.54.23 2.68.11 2.96.72.78 1.15 1.78 1.15 3 0 4.31-2.62 5.25-5.11 5.53.4.35.75 1.03.75 2.08v3.08c0 .3.2.65.77.54A11.2 11.2 0 0 0 12 .8Z"/>
+        </svg>
       </a>
-      <a class="icon-link" href="https://github.com/magpe-stack/Itten/blob/main/README.md" target="_blank" rel="noopener noreferrer" aria-label="Ajuda" title="Manual">?</a>
+
+      <a class="icon-link"
+         href="https://github.com/magpe-stack/Itten/blob/main/README.md"
+         target="_blank"
+         rel="noopener noreferrer"
+         aria-label="Ajuda"
+         title="Manual">?</a>
     </nav>
   </header>
 
@@ -60,7 +77,9 @@
         </div>
         <button id="randomBtn" class="primary" type="button">Gerar cores</button>
       </div>
+
       <div id="baseInputs" class="base-grid"></div>
+
       <div class="control-row">
         <label for="harmony">Harmonia
           <select id="harmony">
@@ -73,6 +92,7 @@
             <option value="monochromatic">Monocromática</option>
           </select>
         </label>
+
         <label for="count">Quantidade de cores
           <select id="count">
             <option value="5">5 cores</option>
@@ -82,6 +102,7 @@
             <option value="12">12 cores</option>
           </select>
         </label>
+
         <button id="regenerateBtn" type="button">Recalcular paleta</button>
       </div>
     </section>
@@ -101,19 +122,34 @@
       <section class="panel">
         <h2>03. Extrator de imagem</h2>
         <p>Extraia as cores predominantes de uma imagem, sem enviá-la para servidores.</p>
-        <div id="dropzone" class="dropzone" role="button" tabindex="0" aria-label="Selecionar imagem">
+
+        <div id="dropzone"
+             class="dropzone"
+             role="button"
+             tabindex="0"
+             aria-label="Selecionar imagem">
           <span class="drop-icon">▧</span>
           <strong>Arraste uma imagem aqui</strong>
           <span>ou clique para selecionar JPG, PNG ou WebP</span>
-          <input id="imageInput" type="file" accept="image/png,image/jpeg,image/webp" hidden>
         </div>
+
+        <!-- Input fora da dropzone para evitar propagação de cliques -->
+        <input id="imageInput"
+               type="file"
+               accept="image/png,image/jpeg,image/webp"
+               hidden>
+
         <div id="extracted" class="swatch-row"></div>
-        <button id="applyExtracted" type="button" disabled>Aplicar cores extraídas</button>
+
+        <button id="applyExtracted" type="button" disabled>
+          Aplicar cores extraídas
+        </button>
       </section>
 
       <section class="panel">
         <h2>04. Simulador de daltonismo</h2>
         <p>Visualização aproximada de diferentes percepções cromáticas.</p>
+
         <label for="vision">Simulação
           <select id="vision">
             <option value="normal">Visão padrão</option>
@@ -122,23 +158,31 @@
             <option value="tritanopia">Tritanopia</option>
           </select>
         </label>
+
         <div id="visionPalette" class="swatch-row vision-row"></div>
-        <p class="note">As matrizes são aproximações visuais, não uma representação exata da experiência individual.</p>
+
+        <p class="note">
+          As matrizes são aproximações visuais, não uma representação exata da experiência individual.
+        </p>
       </section>
     </div>
 
     <section class="panel">
       <h2>05. Laboratório de acessibilidade</h2>
       <p>Teste contrastes WCAG para texto normal e grande, em fundos claros e escuros.</p>
+
       <div class="control-row">
         <label for="foreground">Texto
           <select id="foreground"></select>
         </label>
+
         <label for="backgroundColor">Fundo
           <select id="backgroundColor"></select>
         </label>
       </div>
+
       <div id="contrastResult" class="contrast-result" aria-live="polite"></div>
+
       <h3>Validador simultâneo de temas</h3>
       <div id="dualContrast" class="dual-grid"></div>
     </section>
@@ -146,6 +190,7 @@
     <section class="panel">
       <h2>06. UI Preview Lab</h2>
       <p>Veja a paleta aplicada a componentes de uma interface real.</p>
+
       <div class="preview-grid">
         <div id="previewLight" class="ui-preview"></div>
         <div id="previewDark" class="ui-preview"></div>
@@ -155,21 +200,24 @@
     <section class="panel">
       <h2>07. Gradientes híbridos</h2>
       <p>Gere gradientes CSS a partir das cores da paleta.</p>
+
       <div class="gradient-grid">
         <article class="gradient-card">
           <div id="linearPreview" class="gradient-preview"></div>
           <h3>Linear</h3>
-          <button data-copy-gradient="linear">Copiar CSS</button>
+          <button type="button" data-copy-gradient="linear">Copiar CSS</button>
         </article>
+
         <article class="gradient-card">
           <div id="radialPreview" class="gradient-preview"></div>
           <h3>Radial</h3>
-          <button data-copy-gradient="radial">Copiar CSS</button>
+          <button type="button" data-copy-gradient="radial">Copiar CSS</button>
         </article>
+
         <article class="gradient-card">
           <div id="meshPreview" class="gradient-preview"></div>
           <h3>Mesh</h3>
-          <button data-copy-gradient="mesh">Copiar CSS</button>
+          <button type="button" data-copy-gradient="mesh">Copiar CSS</button>
         </article>
       </div>
     </section>
@@ -180,8 +228,9 @@
           <h2>08. Design Tokens</h2>
           <p>Variáveis CSS prontas para integrar em seus projetos.</p>
         </div>
-        <button id="copyTokens">Copiar tokens</button>
+        <button id="copyTokens" type="button">Copiar tokens</button>
       </div>
+
       <pre id="tokensPreview" class="code-preview"></pre>
     </section>
   </main>
@@ -190,8 +239,13 @@
     Itten · Laboratório cromático inspirado na teoria das cores de Johannes Itten.
   </footer>
 
-  <input id="jsonInput" type="file" accept=".json,application/json" hidden>
+  <input id="jsonInput"
+         type="file"
+         accept=".json,application/json"
+         hidden>
+
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
   <script src="./app.js" defer></script>
 </body>
 </html>
