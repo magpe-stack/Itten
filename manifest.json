@@ -1,0 +1,20 @@
+
+{
+  "id": "./",
+  "name": "Itten — Laboratório Cromático",
+  "short_name": "Itten",
+  "description": "Gerador de paletas cromáticas, harmonias, acessibilidade, gradientes e design tokens.",
+  "lang": "pt-BR",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#f5f6f8",
+  "theme_color": "#f5f6f8",
+  "categories": [
+    "design",
+    "productivity",
+    "utilities"
+  ],
+  "prefer_related_applications": false
+}
