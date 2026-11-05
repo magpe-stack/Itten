@@ -368,3 +368,31 @@ html.itten-splash-active .itten-splash {
 @media print {
   .itten-splash { display: none !important; }
 }
+
+/* ITTEN v4 — menu lateral, projetos e impressão */
+.topbar{flex-wrap:nowrap;justify-content:flex-start;gap:12px;position:relative;z-index:2}
+.topbar .brand{order:1;min-width:0}.topbar .menu-toggle{order:0;flex:none;font-size:1.35rem;width:46px;padding:6px}
+.topbar .theme-toggle{order:2;margin-left:auto;width:46px;flex:none;font-size:1.3rem;padding:6px}
+.menu-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:99}
+.menu-backdrop[hidden]{display:none}
+.side-menu{position:fixed;top:0;bottom:0;left:0;width:min(330px,88vw);z-index:100;background:var(--surface);border-right:1px solid var(--border);padding:20px;overflow-y:auto;transform:translateX(-105%);transition:transform .22s ease;box-shadow:0 12px 36px #0004;display:flex;flex-direction:column;gap:9px}
+.side-menu.open{transform:translateX(0)}.side-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.side-menu>button:not(#closeMenuBtn),.side-menu>a{display:flex;align-items:center;justify-content:space-between;min-height:48px;width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:10px;background:var(--surface-2);color:var(--text);text-decoration:none;font-weight:600;text-align:left}
+.side-menu>button:hover,.side-menu>a:hover{background:var(--surface)}
+.side-menu .export-options{position:static;width:100%;box-shadow:none;padding:5px 8px;margin:0;border-radius:10px}
+.side-menu .export-options button{width:100%;text-align:left;display:block;border:0}
+.project-strip{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:16px 20px;margin-bottom:22px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface)}
+.project-strip strong{display:block;font-size:1.15rem;overflow-wrap:anywhere}
+.project-dialog{width:min(520px,calc(100vw - 24px));max-height:85vh;overflow:auto;background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:16px;padding:24px;box-shadow:0 18px 65px #0005}
+.project-dialog::backdrop{background:#0009}.project-dialog input{width:100%;min-height:46px;padding:10px;margin-top:8px;background:var(--surface-2);border:1px solid var(--border);border-radius:8px;color:var(--text)}
+.project-dialog label{margin-top:16px}.dialog-actions,.dialog-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:16px}.dialog-actions{justify-content:flex-end}
+.form-error{color:#d44;min-height:1.3em}.projects-list{display:grid;gap:10px;margin:20px 0}.project-entry{border:1px solid var(--border);border-radius:10px;padding:12px;display:grid;gap:10px}.project-entry strong{overflow-wrap:anywhere}.project-entry small{display:block}.project-entry .project-actions{display:flex;gap:6px;flex-wrap:wrap}.project-actions button{padding:6px 10px;min-height:34px;font-size:.85rem}
+.print-report{display:none}.print-colors{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.print-swatch{border:1px solid #ccc;border-radius:8px;overflow:hidden;break-inside:avoid}.print-swatch-color{height:90px}.print-swatch-label{padding:8px;color:#111;font-weight:700}
+@media(max-width:420px){.topbar{gap:8px}.brand strong{font-size:1.05rem}.brand small{font-size:.7rem}.brand-logo{width:36px!important;height:36px!important}.project-strip{padding:12px}}
+@media print{
+  .topbar,.menu-backdrop,.side-menu,.container,.footer,.toast,.itten-splash,.project-dialog{display:none!important}
+  body{background:#fff!important;color:#111!important}
+  .print-report{display:block!important;padding:12mm 8mm;color:#111!important}
+  .print-report h1{font-size:24pt;margin:0 0 12px}.print-report h2{font-size:17pt;margin:0 0 8px}.print-report h3{margin:24px 0 12px}.print-report p{color:#333!important}
+  .print-swatch-color{print-color-adjust:exact;-webkit-print-color-adjust:exact}
+}

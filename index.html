@@ -56,6 +56,24 @@
     </div>
   </div>
 
+  <div id="menuBackdrop" class="menu-backdrop" hidden></div>
+  <aside id="sideMenu" class="side-menu" aria-label="Menu de ações" aria-hidden="true" inert>
+    <div class="side-head"><strong>Menu Itten</strong><button id="closeMenuBtn" type="button" aria-label="Fechar menu">✕</button></div>
+    <button id="newBtn" type="button">＋ Novo projeto</button>
+    <button id="printBtn" type="button">▣ Imprimir</button>
+    <button id="importBtn" type="button">↑ Importar</button>
+    <button id="exportBtn" type="button" aria-expanded="false" aria-controls="exportOptions">↓ Exportar <span aria-hidden="true">⌄</span></button>
+    <div id="exportOptions" class="export-options" hidden>
+      <button type="button" data-export="json">JSON</button>
+      <button type="button" data-export="txt">TXT</button>
+      <button type="button" data-export="jpeg">JPEG</button>
+      <button type="button" data-export="css">CSS Tokens</button>
+      <button type="button" data-export="tailwind">Tailwind JS</button>
+    </div>
+    <a href="https://github.com/magpe-stack/Itten/blob/main/README.md" target="_blank" rel="noopener noreferrer">? Ajuda</a>
+    <a href="https://github.com/magpe-stack/Itten" target="_blank" rel="noopener noreferrer">◉ GitHub</a>
+  </aside>
+
   <header class="topbar">
 
     <!-- Logotipo oficial -->
@@ -73,67 +91,8 @@
       </div>
     </div>
 
-    <nav class="toolbar" aria-label="Menu principal">
-      <button id="newBtn" type="button">Novo projeto</button>
-      <button id="printBtn" type="button">Imprimir</button>
-      <button id="importBtn" type="button">Importar</button>
-
-      <div class="export-menu">
-        <button
-          id="exportBtn"
-          type="button"
-          aria-expanded="false"
-          aria-controls="exportOptions"
-        >
-          Exportar ▾
-        </button>
-
-        <div id="exportOptions" class="export-options" hidden>
-          <button type="button" data-export="json">JSON</button>
-          <button type="button" data-export="txt">TXT</button>
-          <button type="button" data-export="jpeg">JPEG</button>
-          <button type="button" data-export="css">CSS Tokens</button>
-          <button type="button" data-export="tailwind">Tailwind JS</button>
-        </div>
-      </div>
-
-      <button
-        id="themeBtn"
-        type="button"
-        aria-label="Alternar tema"
-        title="Alternar tema"
-      >☾</button>
-
-      <!-- Repositório oficial -->
-      <a
-        class="icon-link"
-        href="https://github.com/magpe-stack/Itten"
-        target="_blank"
-        rel="noopener noreferrer"
-        aria-label="GitHub"
-        title="Repositório GitHub"
-      >
-        <svg
-          viewBox="0 0 24 24"
-          width="20"
-          height="20"
-          fill="currentColor"
-          aria-hidden="true"
-        >
-          <path d="M12 .8a11.2 11.2 0 0 0-3.54 21.83c.56.1.76-.24.76-.54v-2.1c-3.1.67-3.75-1.32-3.75-1.32-.5-1.28-1.23-1.62-1.23-1.62-1.01-.69.08-.68.08-.68 1.12.08 1.71 1.15 1.71 1.15 1 .1.78 2.06 3.26 1.45.1-.73.39-1.23.71-1.51-2.48-.28-5.09-1.24-5.09-5.54 0-1.22.44-2.22 1.15-3-.12-.28-.5-1.42.11-2.96 0 0 .94-.3 3.08 1.14a10.7 10.7 0 0 1 5.6 0c2.14-1.44 3.08-1.14 3.08-1.14.61 1.54.23 2.68.11 2.96.72.78 1.15 1.78 1.15 3 0 4.31-2.62 5.25-5.11 5.53.4.35.75 1.03.75 2.08v3.08c0 .3.2.65.77.54A11.2 11.2 0 0 0 12 .8Z"/>
-        </svg>
-      </a>
-
-      <!-- Manual oficial -->
-      <a
-        class="icon-link"
-        href="https://github.com/magpe-stack/Itten/blob/main/README.md"
-        target="_blank"
-        rel="noopener noreferrer"
-        aria-label="Ajuda"
-        title="Manual"
-      >?</a>
-    </nav>
+    <button id="menuBtn" class="menu-toggle" type="button" aria-label="Abrir menu" aria-controls="sideMenu" aria-expanded="false">☰</button>
+    <button id="themeBtn" class="theme-toggle" type="button" aria-label="Alternar tema" title="Alternar tema">☾</button>
   </header>
 
   <main class="container">
@@ -152,14 +111,18 @@
       <span class="status">● Processamento local</span>
     </section>
 
+    <section class="project-strip" aria-label="Projeto ativo">
+      <div><span class="muted">Projeto ativo</span><strong id="projectNameDisplay">Projeto inicial</strong></div>
+      <button id="projectsBtn" type="button">Meus projetos</button>
+    </section>
+
     <!-- 01. Cores-base -->
     <section class="panel">
       <div class="section-head">
         <div>
           <h2>01. Cores-base</h2>
           <p>
-            Escolha três cores para construir
-            seu sistema cromático.
+            Pressione o botão para gerar cores aleatórias ou clique sobre as cores para escolher individualmente. Na sequência, selecione a Harmonia, a Quantidade de cores e clique no botão Recalcular paleta.
           </p>
         </div>
 
@@ -422,6 +385,29 @@
     Itten · Laboratório cromático inspirado na teoria
     das cores de Johannes Itten.
   </footer>
+
+  <dialog id="nameDialog" class="project-dialog" aria-labelledby="nameDialogTitle">
+    <form id="nameForm" method="dialog">
+      <h2 id="nameDialogTitle">Novo projeto</h2>
+      <label for="projectNameInput">Nome do projeto</label>
+      <input id="projectNameInput" type="text" maxlength="80" required autocomplete="off" placeholder="Ex.: Identidade visual">
+      <p id="nameError" class="form-error" role="alert"></p>
+      <div class="dialog-actions"><button id="cancelNameBtn" type="button">Cancelar</button><button class="primary" type="submit">Salvar</button></div>
+    </form>
+  </dialog>
+  <dialog id="projectsDialog" class="project-dialog" aria-labelledby="projectsTitle">
+    <div class="dialog-heading"><h2 id="projectsTitle">Meus projetos</h2><button id="closeProjectsBtn" type="button" aria-label="Fechar">✕</button></div>
+    <div id="projectsList" class="projects-list"></div>
+    <p class="note">Projetos salvos neste navegador. Exporte JSON para manter uma cópia de segurança.</p>
+  </dialog>
+
+  <section id="printReport" class="print-report" aria-label="Relatório para impressão">
+    <h1>Itten — Laboratório Cromático</h1>
+    <h2 id="printProjectName"></h2>
+    <p id="printMetadata"></p>
+    <h3>Cores-base</h3><div id="printBases" class="print-colors"></div>
+    <h3>Paleta gerada</h3><div id="printPalette" class="print-colors"></div>
+  </section>
 
   <!-- Importação de projetos JSON -->
   <input
