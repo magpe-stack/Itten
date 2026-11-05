@@ -1,16 +1,20 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <link rel="icon" type="image/png" href="./icon-192.png">
-<link rel="apple-touch-icon" href="./icon-192.png">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#f5f6f8">
   <meta name="description" content="Itten: laboratório cromático, harmonias, acessibilidade e design tokens.">
   <meta name="color-scheme" content="light dark">
+
+  <!-- Ícones oficiais -->
+  <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png">
+  <link rel="apple-touch-icon" href="./icon-192.png">
+
+  <!-- PWA e estilos -->
   <link rel="manifest" href="./manifest.json">
   <link rel="stylesheet" href="./style.css">
+
   <title>Itten — Laboratório Cromático</title>
 </head>
 <body>
@@ -135,7 +139,6 @@
           <span>ou clique para selecionar JPG, PNG ou WebP</span>
         </div>
 
-        <!-- Input fora da dropzone para evitar propagação de cliques -->
         <input id="imageInput"
                type="file"
                accept="image/png,image/jpeg,image/webp"
