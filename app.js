@@ -1,4 +1,3 @@
-
 "use strict";
 
 (() => {
@@ -98,8 +97,8 @@
     let rgb;
     if(h<60) rgb=[c,x,0];
     else if(h<120) rgb=[x,c,0];
-    else if(h<180) rgb=[0,c,x];
-    else if(h<240) rgb=[0,x,c];
+    else if(h<180) rgb=[0,x,c];
+    else if(h<240) rgb=[0,c,x];
     else if(h<300) rgb=[x,0,c];
     else rgb=[c,0,x];
     return rgbToHex(rgb.map(v=>(v+m)*255));
@@ -208,6 +207,7 @@
     try {
       if(navigator.clipboard && window.isSecureContext) {
         await navigator.clipboard.writeText(text);
+
       } else {
         // Fallback para navegadores sem Clipboard API.
         const area=document.createElement("textarea");
@@ -397,6 +397,7 @@
     const [primary,secondary,accent]=[
       palette[0],palette[1]||palette[0],palette[2]||palette[0]
     ];
+
     const render=(id,bg,label)=>{
       const surface=bg==="#FFFFFF"?"#F3F4F6":"#202938";
       const heading=readable(bg);
@@ -800,7 +801,22 @@
     });
   }
 
+  // A animação visual dura 2 segundos e nunca bloqueia a inicialização.
+  // A classe é definida no HEAD, antes da primeira renderização.
+  function finishSplash() {
+    const splash=document.getElementById("ittenSplash");
+    if(!document.documentElement.classList.contains("itten-splash-active")) {
+      splash?.remove();
+      return;
+    }
+    window.setTimeout(()=>{
+      document.documentElement.classList.remove("itten-splash-active");
+      splash?.remove();
+    },2000);
+  }
+
   async function init() {
+    finishSplash();
     load();
     syncControls();
     setupEvents();
