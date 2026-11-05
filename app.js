@@ -8,6 +8,8 @@
     count: 6
   };
   const STORAGE = "itten.project.v1";
+  const PROJECTS_KEY = "itten.projects.v2";
+  const ACTIVE_KEY = "itten.active.v2";
   const THEME = "itten.theme.v1";
   const MAX_IMAGE_BYTES = 20 * 1024 * 1024;
   const MATRICES = {
@@ -29,6 +31,9 @@
   };
 
   let state = structuredDefault();
+  let projects = [];
+  let activeId = null;
+  let editingId = null;
   let palette = [];
   let extracted = [];
   let toastTimer;
@@ -97,8 +102,8 @@
     let rgb;
     if(h<60) rgb=[c,x,0];
     else if(h<120) rgb=[x,c,0];
-    else if(h<180) rgb=[0,x,c];
-    else if(h<240) rgb=[0,c,x];
+    else if(h<180) rgb=[0,c,x];
+    else if(h<240) rgb=[0,x,c];
     else if(h<300) rgb=[x,0,c];
     else rgb=[c,0,x];
     return rgbToHex(rgb.map(v=>(v+m)*255));
@@ -172,6 +177,7 @@
       const offsets=harmonyOffsets(state.harmony);
       const [h,s,l]=rgbToHsl(bases[0]);
       // Repetir ângulos com variações de luminosidade permite
+
       // gerar quantidades maiores que o número de matizes.
       const levels=[0,-14,14,-28,28,-40,40];
       for(const delta of levels) {
@@ -207,7 +213,6 @@
     try {
       if(navigator.clipboard && window.isSecureContext) {
         await navigator.clipboard.writeText(text);
-
       } else {
         // Fallback para navegadores sem Clipboard API.
         const area=document.createElement("textarea");
@@ -226,12 +231,53 @@
     }
   }
 
-  function save() {
+  function makeId(){return crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(36).slice(2)}`;}
+  function projectName(){return projects.find(p=>p.id===activeId)?.name || "Projeto inicial";}
+  function slugName(){return projectName().normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"").slice(0,55)||"projeto";}
+  function fileName(ext){return `${slugName()}-itten.${ext}`;}
+  function save(){
     try {
-      localStorage.setItem(STORAGE,JSON.stringify(state));
-    } catch {
-      storageAvailable=false;
+      const p=projects.find(p=>p.id===activeId);
+      if(p){p.data=JSON.parse(JSON.stringify(state));p.updated=new Date().toISOString();}
+      localStorage.setItem(PROJECTS_KEY,JSON.stringify(projects));
+      localStorage.setItem(ACTIVE_KEY,activeId);
+      $("projectNameDisplay").textContent=projectName();
+    }catch{storageAvailable=false;}
+  }
+  function uniqueName(name,exclude=null){return !projects.some(p=>p.id!==exclude && p.name.toLocaleLowerCase("pt-BR")===name.toLocaleLowerCase("pt-BR"));}
+  function addProject(name,data){
+    const p={id:makeId(),name,updated:new Date().toISOString(),data:validateProject(data)};
+    projects.push(p);activeId=p.id;state=JSON.parse(JSON.stringify(p.data));syncControls();save();return p;
+  }
+  function openProject(id){const p=projects.find(p=>p.id===id);if(!p)return;activeId=id;state=validateProject(p.data);syncControls();save();$("projectsDialog").close();toast(`Projeto aberto: ${p.name}`);}
+  function renderProjects(){
+    const list=$("projectsList");list.replaceChildren();
+    for(const p of projects){
+      const entry=document.createElement("div");entry.className="project-entry";
+      const heading=document.createElement("div");const strong=document.createElement("strong");strong.textContent=p.name+(p.id===activeId?" · ativo":"");heading.append(strong);
+      const small=document.createElement("small");small.textContent=`Atualizado: ${new Date(p.updated).toLocaleString("pt-BR")}`;heading.append(small);entry.append(heading);
+      const actions=document.createElement("div");actions.className="project-actions";
+      for(const [action,label] of [["open","Abrir"],["rename","Renomear"],["duplicate","Duplicar"],["delete","Excluir"]]){
+        const btn=document.createElement("button");btn.type="button";btn.textContent=label;btn.dataset.action=action;btn.dataset.id=p.id;actions.append(btn);
+      }
+      entry.append(actions);list.append(entry);
     }
+  }
+  function openNameDialog(id=null){
+    editingId=id;$("nameDialogTitle").textContent=id?"Renomear projeto":"Novo projeto";
+    $("projectNameInput").value=id?(projects.find(p=>p.id===id)?.name||""):"";
+    $("nameError").textContent="";$("nameDialog").showModal();$("projectNameInput").focus();
+  }
+  function printReport(){
+    $("printProjectName").textContent=`Projeto: ${projectName()}`;
+    $("printMetadata").textContent=`Harmonia: ${$("harmony").selectedOptions[0].textContent} · Quantidade: ${palette.length} cores`;
+    function fill(id,colors,prefix){const target=$(id);target.replaceChildren();colors.forEach((hex,i)=>{
+      const card=document.createElement("div");card.className="print-swatch";
+      const color=document.createElement("div");color.className="print-swatch-color";color.style.backgroundColor=hex;
+      const label=document.createElement("div");label.className="print-swatch-label";label.textContent=`${prefix} ${i+1} · ${hex}`;
+      card.append(color,label);target.append(card);
+    });}
+    fill("printBases",state.bases,"Base");fill("printPalette",palette,"Cor");
   }
 
   function validateProject(obj) {
@@ -250,21 +296,26 @@
     const count=Number(obj.count);
     if(![5,6,8,10,12].includes(count))
       throw Error("Quantidade inválida");
-    return {bases,harmony:obj.harmony,count};
+ return {bases,harmony:obj.harmony,count};
   }
 
-  function load() {
+  function load(){
     try {
-      const raw=localStorage.getItem(STORAGE);
-      if(raw) state=validateProject(JSON.parse(raw));
-    } catch {
-      state=structuredDefault();
+      const stored=JSON.parse(localStorage.getItem(PROJECTS_KEY)||"null");
+      if(Array.isArray(stored))projects=stored.filter(p=>p && typeof p.name==="string" && p.name.trim() && p.id).map(p=>({...p,data:validateProject(p.data)}));
+      if(!projects.length){
+        let previous=structuredDefault();
+        try{const legacy=localStorage.getItem(STORAGE);if(legacy)previous=validateProject(JSON.parse(legacy));}catch{}
+        projects=[{id:makeId(),name:"Projeto inicial",updated:new Date().toISOString(),data:previous}];
+      }
+      activeId=localStorage.getItem(ACTIVE_KEY);
+      if(!projects.some(p=>p.id===activeId))activeId=projects[0].id;
+      state=validateProject(projects.find(p=>p.id===activeId).data);
+    }catch{
+      projects=[{id:makeId(),name:"Projeto inicial",updated:new Date().toISOString(),data:structuredDefault()}];activeId=projects[0].id;state=structuredDefault();
     }
-    try {
-      if(localStorage.getItem(THEME)==="dark")
-        document.body.classList.add("dark");
-    } catch {}
-    updateThemeButton();
+    try{if(localStorage.getItem(THEME)==="dark")document.body.classList.add("dark");}catch{}
+    updateThemeButton();$("projectNameDisplay").textContent=projectName();
   }
 
   function updateThemeButton() {
@@ -307,6 +358,7 @@
   // Matrizes aproximativas aplicadas diretamente aos canais RGB.
   // Não representam um modelo clínico de visão de cores.
   function simulate(hex,type) {
+
     if(type==="normal") return hex;
     const m=MATRICES[type];
     if(!m) return hex;
@@ -397,7 +449,6 @@
     const [primary,secondary,accent]=[
       palette[0],palette[1]||palette[0],palette[2]||palette[0]
     ];
-
     const render=(id,bg,label)=>{
       const surface=bg==="#FFFFFF"?"#F3F4F6":"#202938";
       const heading=readable(bg);
@@ -434,7 +485,7 @@
   }
 
   function cssTokens() {
-    return `:root {\n${palette.map((c,i)=>
+    return `/* Itten — Projeto: ${projectName().replace(/\*\//g," ")} */\n/* Cores-base: ${state.bases.join(", ")} */\n:root {\n${state.bases.map((c,i)=>`  --itten-base-${i+1}: ${c};`).join("\n")}\n${palette.map((c,i)=>
       `  --itten-color-${i+1}: ${c};`
     ).join("\n")}\n  --itten-primary: ${palette[0]};\n  --itten-secondary: ${palette[1]||palette[0]};\n  --itten-accent: ${palette[2]||palette[0]};\n}`;
   }
@@ -443,10 +494,11 @@
     const colors=Object.fromEntries(palette.map((c,i)=>
       [`color${i+1}`,c]
     ));
+    state.bases.forEach((c,i)=>colors[`base${i+1}`]=c);
     colors.primary=palette[0];
     colors.secondary=palette[1]||palette[0];
     colors.accent=palette[2]||palette[0];
-    return `// tailwind.config.js — compatível com Tailwind CSS v3\nmodule.exports = ${JSON.stringify({
+    return `// Projeto: ${projectName().replace(/[\r\n]/g," ")}\n// Cores-base: ${state.bases.join(", ")}\n// tailwind.config.js — compatível com Tailwind CSS v3\nmodule.exports = ${JSON.stringify({
       theme:{extend:{colors:{itten:colors}}}
     },null,2)};`;
   }
@@ -487,6 +539,7 @@
 
   function downloadBlob(blob,name) {
     const url=URL.createObjectURL(blob);
+
     const a=document.createElement("a");
     a.href=url;
     a.download=name;
@@ -499,95 +552,69 @@
   function exportJSON() {
     const obj={
       app:"Itten",
-      version:1,
+      version:2,
+      name:projectName(),
       ...state,
       palette:[...palette]
     };
     downloadBlob(new Blob([JSON.stringify(obj,null,2)],{
       type:"application/json"
-    }),"itten-paleta.json");
+    }),fileName("json"));
   }
 
   function exportTXT() {
     const text=[
       "ITTEN — PALETA CROMÁTICA",
+      `Projeto: ${projectName()}`,
       `Harmonia: ${state.harmony}`,
-      `Bases: ${state.bases.join(", ")}`,
+      "Cores-base:",
+      ...state.bases.map((c,i)=>`Base ${i+1}: ${c}`),
+      "Paleta gerada:",
       "",
       ...palette.map((c,i)=>`Cor ${i+1}: ${c}`)
     ].join("\n");
     downloadBlob(new Blob([text],{type:"text/plain;charset=utf-8"}),
-      "itten-paleta.txt");
+      fileName("txt"));
   }
 
   function exportCSS() {
     downloadBlob(new Blob([cssTokens()],{type:"text/css;charset=utf-8"}),
-      "itten-tokens.css");
+      fileName("css"));
   }
 
   function exportTailwind() {
     downloadBlob(new Blob([tailwindTokens()],{
       type:"text/javascript;charset=utf-8"
-    }),"itten-tailwind.config.js");
+    }),fileName("tailwind.config.js"));
   }
 
-  function exportJPEG() {
-    // Canvas de alta resolução, com textos e cores renderizados
-    // diretamente, sem dependência de captura de DOM.
-    const width=1400, margin=64, gap=16, cols=3;
-    const cellW=(width-margin*2-gap*(cols-1))/cols;
-    const cellH=240;
-    const rows=Math.ceil(palette.length/cols);
-    const height=180+rows*(cellH+gap)+margin;
-    const canvas=document.createElement("canvas");
-    canvas.width=width;
-    canvas.height=height;
-    const ctx=canvas.getContext("2d");
-    if(!ctx) { toast("Canvas indisponível"); return; }
-    ctx.fillStyle="#FFFFFF";
-    ctx.fillRect(0,0,width,height);
-    ctx.fillStyle="#17202D";
-    ctx.font="bold 58px system-ui";
-    ctx.fillText("Itten",margin,88);
-    ctx.font="26px system-ui";
-    ctx.fillStyle="#647084";
-    ctx.fillText("Laboratório cromático · "+state.harmony,margin,130);
-    palette.forEach((hex,i)=>{
-      const col=i%cols,row=Math.floor(i/cols);
-      const x=margin+col*(cellW+gap);
-      const y=180+row*(cellH+gap);
-      ctx.fillStyle=hex;
-      ctx.fillRect(x,y,cellW,cellH);
-      ctx.fillStyle=readable(hex);
-      ctx.font="24px system-ui";
-      ctx.fillText(`COR ${String(i+1).padStart(2,"0")}`,x+24,y+48);
-      ctx.font="bold 42px system-ui";
-      ctx.fillText(hex,x+24,y+cellH-32);
-    });
-    canvas.toBlob(blob=>{
-      if(blob) downloadBlob(blob,"itten-paleta.jpg");
-      else toast("Não foi possível gerar o JPEG");
-    },"image/jpeg",.94);
+  function exportJPEG(){
+    const width=1400,margin=64,gap=16,cols=3,cellW=(width-margin*2-gap*(cols-1))/cols,cellH=190;
+    const baseY=270,paletteY=baseY+cellH+110,rows=Math.ceil(palette.length/cols);
+    const canvas=document.createElement("canvas");canvas.width=width;canvas.height=paletteY+rows*(cellH+gap)+margin;
+    const ctx=canvas.getContext("2d");if(!ctx){toast("Canvas indisponível");return;}
+    ctx.fillStyle="#fff";ctx.fillRect(0,0,canvas.width,canvas.height);
+    ctx.fillStyle="#17202D";ctx.font="bold 55px system-ui";ctx.fillText("Itten",margin,78);
+    ctx.font="bold 30px system-ui";ctx.fillText(`Projeto: ${projectName()}`.slice(0,64),margin,132);
+    ctx.font="24px system-ui";ctx.fillText(`Harmonia: ${state.harmony} · ${palette.length} cores`,margin,175);
+    const title=(text,y)=>{ctx.fillStyle="#17202D";ctx.font="bold 28px system-ui";ctx.fillText(text,margin,y);};
+    const swatch=(hex,i,y,prefix)=>{const x=margin+(i%cols)*(cellW+gap),yy=y+Math.floor(i/cols)*(cellH+gap);
+      ctx.fillStyle=hex;ctx.fillRect(x,yy,cellW,cellH);ctx.fillStyle=readable(hex);ctx.font="bold 28px system-ui";ctx.fillText(`${prefix} ${i+1} · ${hex}`,x+18,yy+cellH-22);};
+    title("Cores-base",baseY-25);state.bases.forEach((c,i)=>swatch(c,i,baseY,"Base"));
+    title("Paleta gerada",paletteY-25);palette.forEach((c,i)=>swatch(c,i,paletteY,"Cor"));
+    canvas.toBlob(blob=>{if(blob)downloadBlob(blob,fileName("jpg"));else toast("Falha ao gerar JPEG");},"image/jpeg",.94);
   }
 
-  async function importJSON(file) {
-    if(!file) return;
-    if(file.size>1024*1024) {
-      toast("Arquivo JSON muito grande");
-      return;
-    }
-    try {
-      const obj=JSON.parse(await file.text());
-      const data=validateProject(obj);
-      state=data;
-      extracted=[];
-      $("extracted").replaceChildren();
-      $("applyExtracted").disabled=true;
-      syncControls();
-      toast("Paleta importada");
-    } catch(err) {
-      toast("Importação recusada: "+err.message);
-    }
+  async function importJSON(file){
+    if(!file)return;if(file.size>1024*1024){toast("JSON muito grande");return;}
+    try{
+      const obj=JSON.parse(await file.text());const data=validateProject(obj);
+      let name=typeof obj.name==="string"?obj.name.trim().slice(0,80):"Projeto importado";
+      if(!name)name="Projeto importado";
+      const original=name;let n=2;while(!uniqueName(name))name=`${original} (${n++})`;
+      addProject(name,data);extracted=[];$("extracted").replaceChildren();$("applyExtracted").disabled=true;
+      toast(`Projeto importado: ${name}`);
+    }catch(err){toast("Importação recusada: "+err.message);}
   }
 
   // Quantização de cores: amostramos pixels, agrupamos em
@@ -613,7 +640,8 @@
       const w=Math.max(1,Math.round(bitmap.width*scale));
       const h=Math.max(1,Math.round(bitmap.height*scale));
       const canvas=document.createElement("canvas");
-      canvas.width=w;canvas.height=h;
+      canvas.width=w;
+      canvas.height=h;
       const ctx=canvas.getContext("2d",{willReadFrequently:true});
       if(!ctx) throw Error("Canvas indisponível");
       ctx.drawImage(bitmap,0,0,w,h);
@@ -667,7 +695,91 @@
     return rgbToHex([...bytes]);
   }
 
+  function closeMenu(){
+    $("sideMenu").classList.remove("open");
+    $("sideMenu").setAttribute("aria-hidden","true");
+    $("sideMenu").inert=true;
+    $("menuBackdrop").hidden=true;
+    $("menuBtn").setAttribute("aria-expanded","false");
+    $("exportOptions").hidden=true;
+    $("exportBtn").setAttribute("aria-expanded","false");
+  }
+
+  function toggleMenu(){
+    if($("sideMenu").classList.contains("open")){
+      closeMenu();
+      return;
+    }
+    $("sideMenu").inert=false;
+    $("sideMenu").setAttribute("aria-hidden","false");
+    $("sideMenu").classList.add("open");
+    $("menuBackdrop").hidden=false;
+    $("menuBtn").setAttribute("aria-expanded","true");
+  }
+
   function setupEvents() {
+    $("menuBtn").addEventListener("click",toggleMenu);
+    $("closeMenuBtn").addEventListener("click",closeMenu);
+    $("menuBackdrop").addEventListener("click",closeMenu);
+    document.addEventListener("keydown",e=>{
+      if(e.key==="Escape")closeMenu();
+    });
+    $("projectsBtn").addEventListener("click",()=>{
+      renderProjects();
+      $("projectsDialog").showModal();
+    });
+    $("closeProjectsBtn").addEventListener("click",()=>
+      $("projectsDialog").close()
+    );
+    $("cancelNameBtn").addEventListener("click",()=>
+      $("nameDialog").close()
+    );
+    $("nameForm").addEventListener("submit",e=>{
+      e.preventDefault();
+      const name=$("projectNameInput").value.trim();
+      if(!name){
+        $("nameError").textContent="Informe um nome.";
+        return;
+      }
+      if(!uniqueName(name,editingId)){
+        $("nameError").textContent="Já existe um projeto com esse nome.";
+        return;
+      }
+      if(editingId){
+        const p=projects.find(p=>p.id===editingId);
+        if(p){
+          p.name=name;
+          save();
+          renderProjects();
+          toast("Projeto renomeado");
+        }
+      }else{
+        addProject(name,structuredDefault());
+        extracted=[];
+        $("extracted").replaceChildren();
+        $("applyExtracted").disabled=true;
+        $("vision").value="normal";
+        toast("Projeto criado");
+      }
+      $("nameDialog").close();
+
+    });
+    $("projectsList").addEventListener("click",e=>{
+      const btn=e.target.closest("[data-action]");if(!btn)return;
+      const p=projects.find(p=>p.id===btn.dataset.id);if(!p)return;
+      switch(btn.dataset.action){
+        case "open":openProject(p.id);break;
+        case "rename":openNameDialog(p.id);break;
+        case "duplicate":{let name=p.name+" (cópia)",n=2;while(!uniqueName(name))name=`${p.name} (cópia ${n++})`;addProject(name,p.data);renderProjects();toast("Projeto duplicado");break;}
+        case "delete":{
+          if(projects.length===1){toast("Mantenha pelo menos um projeto");return;}
+          if(!confirm(`Excluir definitivamente o projeto “${p.name}” deste navegador?`))return;
+          projects=projects.filter(x=>x.id!==p.id);
+          if(activeId===p.id){activeId=projects[0].id;state=validateProject(projects[0].data);syncControls();}
+          save();renderProjects();toast("Projeto excluído");break;
+        }
+      }
+    });
     $("baseInputs").addEventListener("input",e=>{
       if(e.target.matches("[data-base]"))
         setBase(Number(e.target.dataset.base),e.target.value);
@@ -698,16 +810,7 @@
       syncControls();
     });
 
-    $("newBtn").addEventListener("click",()=>{
-      if(!confirm("Criar novo projeto e substituir a paleta atual?")) return;
-      state=structuredDefault();
-      extracted=[];
-      $("extracted").replaceChildren();
-      $("applyExtracted").disabled=true;
-      $("vision").value="normal";
-      syncControls();
-      toast("Novo projeto criado");
-    });
+    $("newBtn").addEventListener("click",()=>{closeMenu();openNameDialog();});
 
     $("themeBtn").addEventListener("click",()=>{
       document.body.classList.toggle("dark");
@@ -718,8 +821,8 @@
       } catch {}
     });
 
-    $("printBtn").addEventListener("click",()=>window.print());
-    $("importBtn").addEventListener("click",()=>$("jsonInput").click());
+    $("printBtn").addEventListener("click",()=>{closeMenu();printReport();window.print();});
+    $("importBtn").addEventListener("click",()=>{closeMenu();$("jsonInput").click();});
     $("jsonInput").addEventListener("change",async e=>{
       await importJSON(e.target.files[0]);
       e.target.value="";
@@ -730,12 +833,7 @@
       el.hidden=!el.hidden;
       $("exportBtn").setAttribute("aria-expanded",String(!el.hidden));
     });
-    document.addEventListener("click",e=>{
-      if(!e.target.closest(".export-menu")) {
-        $("exportOptions").hidden=true;
-        $("exportBtn").setAttribute("aria-expanded","false");
-      }
-    });
+
     $("exportOptions").addEventListener("click",e=>{
       const type=e.target.closest("[data-export]")?.dataset.export;
       if(!type) return;
@@ -746,6 +844,7 @@
         css:exportCSS,tailwind:exportTailwind
       };
       actions[type]?.();
+      closeMenu();
     });
 
     $("palette").addEventListener("click",e=>{
@@ -820,6 +919,7 @@
     load();
     syncControls();
     setupEvents();
+    printReport();
     if("serviceWorker" in navigator &&
        location.protocol!=="file:") {
       try {
