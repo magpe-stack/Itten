@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f5f6f8">
+  <meta name="description" content="Itten: laboratório cromático, harmonias, acessibilidade e design tokens.">
+  <meta name="color-scheme" content="light dark">
+
+  <!-- Identidade visual unificada -->
+  <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png">
+  <link rel="apple-touch-icon" href="./icon-192.png">
+
+  <!-- Configuração PWA -->
+  <link rel="manifest" href="./manifest.json">
+
+  <!-- Splash apenas em PWA instalado no celular; executado antes da renderização. -->
+  <script>
+    (() => {
+      const mobile = matchMedia('(max-width: 760px) and (pointer: coarse)').matches;
+      const installed = matchMedia('(display-mode: standalone)').matches ||
+        navigator.standalone === true;
+      const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (mobile && installed && !reduced) {
+        document.documentElement.classList.add('itten-splash-active');
+      }
+    })();
+  </script>
+
+  <!-- Estilos -->
+  <link rel="stylesheet" href="./style.css">
+
+  <title>Itten — Laboratório Cromático</title>
+
+  <!-- Ajuste visual do logotipo -->
+  <style>
+    .brand-logo {
+      display: block;
+      width: 40px;
+      height: 40px;
+      object-fit: contain;
+      flex-shrink: 0;
+      border-radius: 8px;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Abertura cinematográfica: somente no celular, em modo instalado. -->
+  <div id="ittenSplash" class="itten-splash" aria-hidden="true">
+    <div class="itten-splash-center">
+      <div class="itten-splash-halo"></div>
+      <img class="itten-splash-logo" src="./icon-192.png" alt="" width="128" height="128" fetchpriority="high">
+      <div class="itten-splash-name">ITTEN</div>
+      <div class="itten-splash-subtitle">LABORATÓRIO CROMÁTICO</div>
+    </div>
+  </div>
+
+  <div id="menuBackdrop" class="menu-backdrop" hidden></div>
+  <aside id="sideMenu" class="side-menu" aria-label="Menu de ações" aria-hidden="true" inert>
+    <div class="side-head"><strong>Menu Itten</strong><button id="closeMenuBtn" type="button" aria-label="Fechar menu">✕</button></div>
+    <button id="newBtn" type="button">＋ Novo projeto</button>
+    <button id="printBtn" type="button">▣ Imprimir</button>
+    <button id="importBtn" type="button">↑ Importar</button>
+    <button id="exportBtn" type="button" aria-expanded="false" aria-controls="exportOptions">↓ Exportar <span aria-hidden="true">⌄</span></button>
+    <div id="exportOptions" class="export-options" hidden>
+      <button type="button" data-export="json">JSON</button>
+      <button type="button" data-export="txt">TXT</button>
+      <button type="button" data-export="jpeg">JPEG</button>
+      <button type="button" data-export="css">CSS Tokens</button>
+      <button type="button" data-export="tailwind">Tailwind JS</button>
+    </div>
+    <a href="https://github.com/magpe-stack/Itten/blob/main/README.md" target="_blank" rel="noopener noreferrer">? Ajuda</a>
+    <a href="https://github.com/magpe-stack/Itten" target="_blank" rel="noopener noreferrer">◉ GitHub</a>
+  </aside>
+
+  <header class="topbar">
+
+    <!-- Logotipo oficial -->
+    <div class="brand">
+      <img
+        class="brand-logo"
+        src="./icon-192.png"
+        alt="Logotipo do Itten"
+        width="40"
+        height="40"
+      >
+      <div>
+        <strong>Itten</strong>
+        <small>Laboratório cromático</small>
+      </div>
+    </div>
+
+    <button id="menuBtn" class="menu-toggle" type="button" aria-label="Abrir menu" aria-controls="sideMenu" aria-expanded="false">☰</button>
+    <button id="themeBtn" class="theme-toggle" type="button" aria-label="Alternar tema" title="Alternar tema">☾</button>
+  </header>
+
+  <main class="container">
+
+    <!-- Introdução -->
+    <section class="intro">
+      <div>
+        <span class="eyebrow">COLOR SYSTEM STUDIO</span>
+        <h1>Crie cores com propósito.</h1>
+        <p>
+          Explore harmonias, contraste, acessibilidade
+          e aplicações reais em interfaces.
+        </p>
+      </div>
+
+      <span class="status">● Processamento local</span>
+    </section>
+
+    <section class="project-strip" aria-label="Projeto ativo">
+      <div><span class="muted">Projeto ativo</span><strong id="projectNameDisplay">Projeto inicial</strong></div>
+      <button id="projectsBtn" type="button">Meus projetos</button>
+    </section>
+
+    <!-- 01. Cores-base -->
+    <section class="panel">
+      <div class="section-head">
+        <div>
+          <h2>01. Cores-base</h2>
+          <p>
+            Pressione o botão para gerar cores aleatórias ou clique sobre as cores para escolher individualmente. Na sequência, selecione a Harmonia, a Quantidade de cores e clique no botão Recalcular paleta.
+          </p>
+        </div>
+
+        <button
+          id="randomBtn"
+          class="primary"
+          type="button"
+        >
+          Gerar cores
+        </button>
+      </div>
+
+      <div id="baseInputs" class="base-grid"></div>
+
+      <div class="control-row">
+        <label for="harmony">
+          Harmonia
+          <select id="harmony">
+            <option value="integrated">Integrada</option>
+            <option value="complementary">Complementar</option>
+            <option value="analogous">Análoga</option>
+            <option value="triadic">Triádica</option>
+            <option value="split">Complementar dividida</option>
+            <option value="tetradic">Tetrádica</option>
+            <option value="monochromatic">Monocromática</option>
+          </select>
+        </label>
+
+        <label for="count">
+          Quantidade de cores
+          <select id="count">
+            <option value="5">5 cores</option>
+            <option value="6" selected>6 cores</option>
+            <option value="8">8 cores</option>
+            <option value="10">10 cores</option>
+            <option value="12">12 cores</option>
+          </select>
+        </label>
+
+        <button id="regenerateBtn" type="button">
+          Recalcular paleta
+        </button>
+      </div>
+    </section>
+
+    <!-- 02. Paleta -->
+    <section class="panel">
+      <div class="section-head">
+        <div>
+          <h2>02. Paleta gerada</h2>
+          <p>
+            Toque em uma cor para copiar seu código HEX.
+          </p>
+        </div>
+
+        <span id="paletteCount" class="muted"></span>
+      </div>
+
+      <div id="palette" class="palette-grid"></div>
+    </section>
+
+    <!-- 03 e 04 -->
+    <div class="two-col">
+
+      <!-- Extrator de imagem -->
+      <section class="panel">
+        <h2>03. Extrator de imagem</h2>
+        <p>
+          Extraia as cores predominantes de uma imagem,
+          sem enviá-la para servidores.
+        </p>
+
+        <div
+          id="dropzone"
+          class="dropzone"
+          role="button"
+          tabindex="0"
+          aria-label="Selecionar imagem"
+        >
+          <span class="drop-icon">▧</span>
+          <strong>Arraste uma imagem aqui</strong>
+          <span>
+            ou clique para selecionar JPG, PNG ou WebP
+          </span>
+        </div>
+
+        <!-- Input separado da área de upload -->
+        <input
+          id="imageInput"
+          type="file"
+          accept="image/png,image/jpeg,image/webp"
+          hidden
+        >
+
+        <div id="extracted" class="swatch-row"></div>
+
+        <button
+          id="applyExtracted"
+          type="button"
+          disabled
+        >
+          Aplicar cores extraídas
+        </button>
+      </section>
+
+      <!-- Daltonismo -->
+      <section class="panel">
+        <h2>04. Simulador de daltonismo</h2>
+        <p>
+          Visualização aproximada de diferentes
+          percepções cromáticas.
+        </p>
+
+        <label for="vision">
+          Simulação
+          <select id="vision">
+            <option value="normal">Visão padrão</option>
+            <option value="protanopia">Protanopia</option>
+            <option value="deuteranopia">Deuteranopia</option>
+            <option value="tritanopia">Tritanopia</option>
+          </select>
+        </label>
+
+        <div
+          id="visionPalette"
+          class="swatch-row vision-row"
+        ></div>
+
+        <p class="note">
+          As matrizes são aproximações visuais,
+          não uma representação exata da experiência individual.
+        </p>
+      </section>
+    </div>
+
+    <!-- 05. Acessibilidade -->
+    <section class="panel">
+      <h2>05. Laboratório de acessibilidade</h2>
+      <p>
+        Teste contrastes WCAG para texto normal e grande,
+        em fundos claros e escuros.
+      </p>
+
+      <div class="control-row">
+        <label for="foreground">
+          Texto
+          <select id="foreground"></select>
+        </label>
+
+        <label for="backgroundColor">
+          Fundo
+          <select id="backgroundColor"></select>
+        </label>
+      </div>
+
+      <div
+        id="contrastResult"
+        class="contrast-result"
+        aria-live="polite"
+      ></div>
+
+      <h3>Validador simultâneo de temas</h3>
+
+      <div id="dualContrast" class="dual-grid"></div>
+    </section>
+
+    <!-- 06. UI Preview -->
+    <section class="panel">
+      <h2>06. UI Preview Lab</h2>
+      <p>
+        Veja a paleta aplicada a componentes
+        de uma interface real.
+      </p>
+
+      <div class="preview-grid">
+        <div id="previewLight" class="ui-preview"></div>
+        <div id="previewDark" class="ui-preview"></div>
+      </div>
+    </section>
+
+    <!-- 07. Gradientes -->
+    <section class="panel">
+      <h2>07. Gradientes híbridos</h2>
+      <p>
+        Gere gradientes CSS a partir das cores da paleta.
+      </p>
+
+      <div class="gradient-grid">
+
+        <article class="gradient-card">
+          <div
+            id="linearPreview"
+            class="gradient-preview"
+          ></div>
+          <h3>Linear</h3>
+          <button
+            type="button"
+            data-copy-gradient="linear"
+          >
+            Copiar CSS
+          </button>
+        </article>
+
+        <article class="gradient-card">
+          <div
+            id="radialPreview"
+            class="gradient-preview"
+          ></div>
+          <h3>Radial</h3>
+          <button
+            type="button"
+            data-copy-gradient="radial"
+          >
+            Copiar CSS
+          </button>
+        </article>
+
+        <article class="gradient-card">
+          <div
+            id="meshPreview"
+            class="gradient-preview"
+          ></div>
+          <h3>Mesh</h3>
+          <button
+            type="button"
+            data-copy-gradient="mesh"
+          >
+            Copiar CSS
+          </button>
+        </article>
+
+      </div>
+    </section>
+
+    <!-- 08. Design Tokens -->
+    <section class="panel">
+      <div class="section-head">
+        <div>
+          <h2>08. Design Tokens</h2>
+          <p>
+            Variáveis CSS prontas para integrar
+            em seus projetos.
+          </p>
+        </div>
+
+        <button id="copyTokens" type="button">
+          Copiar tokens
+        </button>
+      </div>
+
+      <pre
+        id="tokensPreview"
+        class="code-preview"
+      ></pre>
+    </section>
+
+  </main>
+
+  <footer class="footer">
+    Itten · Laboratório cromático inspirado na teoria
+    das cores de Johannes Itten.
+  </footer>
+
+  <dialog id="nameDialog" class="project-dialog" aria-labelledby="nameDialogTitle">
+    <form id="nameForm" method="dialog">
+      <h2 id="nameDialogTitle">Novo projeto</h2>
+      <label for="projectNameInput">Nome do projeto</label>
+      <input id="projectNameInput" type="text" maxlength="80" required autocomplete="off" placeholder="Ex.: Identidade visual">
+      <p id="nameError" class="form-error" role="alert"></p>
+      <div class="dialog-actions"><button id="cancelNameBtn" type="button">Cancelar</button><button class="primary" type="submit">Salvar</button></div>
+    </form>
+  </dialog>
+  <dialog id="projectsDialog" class="project-dialog" aria-labelledby="projectsTitle">
+    <div class="dialog-heading"><h2 id="projectsTitle">Meus projetos</h2><button id="closeProjectsBtn" type="button" aria-label="Fechar">✕</button></div>
+    <div id="projectsList" class="projects-list"></div>
+    <p class="note">Projetos salvos neste navegador. Exporte JSON para manter uma cópia de segurança.</p>
+  </dialog>
+
+  <section id="printReport" class="print-report" aria-label="Relatório para impressão">
+    <h1>Itten — Laboratório Cromático</h1>
+    <h2 id="printProjectName"></h2>
+    <p id="printMetadata"></p>
+    <h3>Cores-base</h3><div id="printBases" class="print-colors"></div>
+    <h3>Paleta gerada</h3><div id="printPalette" class="print-colors"></div>
+  </section>
+
+  <!-- Importação de projetos JSON -->
+  <input
+    id="jsonInput"
+    type="file"
+    accept=".json,application/json"
+    hidden
+  >
+
+  <!-- Notificações -->
+  <div
+    id="toast"
+    class="toast"
+    role="status"
+    aria-live="polite"
+  ></div>
+
+  <!-- Lógica principal -->
+  <script src="./app.js" defer></script>
+
+</body>
+</html>
