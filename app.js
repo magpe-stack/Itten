@@ -268,16 +268,69 @@
     $("projectNameInput").value=id?(projects.find(p=>p.id===id)?.name||""):"";
     $("nameError").textContent="";$("nameDialog").showModal();$("projectNameInput").focus();
   }
+  const REPORT_CSS = "@page{size:A4;margin:14mm 12mm}*{box-sizing:border-box}body{font-family:Arial,system-ui,sans-serif;background:#fff;color:#18283d;margin:0}.print-report{display:block!important;max-width:960px;margin:auto;padding:20px}.r-cover{background:#142a49;color:#fff;padding:28px 32px;border-radius:12px;margin-bottom:24px}.r-kicker{font-size:11px;letter-spacing:2px;color:#b6c8e6}.r-cover h1{font-size:29px;margin:12px 0}.r-cover p{color:#e2eaf7!important}.r-meta{display:flex;gap:16px;margin-top:24px}.r-meta>div{flex:1;border-top:1px solid #7990af;padding-top:12px}.r-meta small{display:block;color:#b8c8e0;font-size:10px;letter-spacing:1px}.r-meta b{display:block;font-size:13px;margin-top:5px}.r-section{margin:0 0 25px;break-inside:auto;page-break-inside:auto}.r-section h2{display:flex;align-items:center;gap:10px;background:#eaf0f8;color:#183451;padding:11px 13px;font-size:17px;border-left:5px solid #3457d5;break-after:avoid}.r-section h2 span{font-size:12px;color:#3457d5}.r-section h3{font-size:14px;margin:17px 0 8px;break-after:avoid}.r-description{font-size:12px;line-height:1.5;color:#506176!important;margin:8px 0 13px}.r-swatches{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px;margin:8px 0 13px}.r-swatch{border:1px solid #d8e1ec;border-radius:7px;overflow:hidden;break-inside:avoid}.r-color{height:55px;print-color-adjust:exact;-webkit-print-color-adjust:exact}.r-swatch-label{padding:6px;font-size:10px;line-height:1.5;color:#25364c}.r-swatch-label b{font-size:11px}.r-note{font-size:11px!important;background:#edf3fb;color:#45556d!important;padding:10px;border-radius:6px;line-height:1.5}.r-table-wrap{overflow:visible}table{width:100%;border-collapse:collapse;font-size:10px}th{background:#172d49;color:#fff;text-align:left}th,td{padding:8px 5px;border-bottom:1px solid #dce5ef}tr{break-inside:avoid}td{white-space:nowrap}.r-dot{display:inline-block;width:13px;height:13px;border-radius:3px;vertical-align:middle;border:1px solid #ccc;print-color-adjust:exact;-webkit-print-color-adjust:exact}.r-selected>div{padding:18px;border-radius:7px;font-weight:bold;print-color-adjust:exact;-webkit-print-color-adjust:exact}.r-selected p{font-size:11px;line-height:1.6}.r-previews{display:grid;grid-template-columns:1fr 1fr;gap:12px}.r-preview{border:1px solid #d6e0eb;padding:14px;border-radius:8px;print-color-adjust:exact;-webkit-print-color-adjust:exact}.r-preview small{font-weight:bold;letter-spacing:1px}.r-preview-inner{margin-top:12px;padding:16px;border-radius:7px;print-color-adjust:exact;-webkit-print-color-adjust:exact}.r-preview-inner p{font-size:11px;color:inherit!important}.r-preview-button{display:inline-block;font-size:10px;font-weight:bold;border-radius:4px;padding:9px;margin:5px 5px 0 0;print-color-adjust:exact;-webkit-print-color-adjust:exact}.r-accent{height:8px;border-radius:4px;margin-top:12px;print-color-adjust:exact;-webkit-print-color-adjust:exact}.r-gradient{margin:12px 0;break-inside:avoid}.r-gradient>div{height:64px;border-radius:6px;print-color-adjust:exact;-webkit-print-color-adjust:exact}.r-gradient strong{display:block;margin:6px 0;font-size:12px}.r-gradient code{font-size:10px;overflow-wrap:anywhere;line-height:1.6}.r-section pre{background:#172d49;color:#e8f3ff;padding:18px;border-radius:8px;font-size:10px;line-height:1.6;white-space:pre-wrap;overflow-wrap:anywhere;print-color-adjust:exact;-webkit-print-color-adjust:exact}.r-guidance{font-size:12px;line-height:1.6}.r-footer{border-top:1px solid #dce5ef;margin-top:25px;padding-top:10px;color:#62738a;font-size:10px}@media print{html,body{background:#fff!important}.print-report{display:block!important;max-width:none;padding:0!important;margin:0!important}.r-cover{break-inside:avoid}.r-section h2{print-color-adjust:exact;-webkit-print-color-adjust:exact}.r-swatches{grid-template-columns:repeat(6,minmax(0,1fr))}}@media(max-width:620px) and (not print){.r-swatches{grid-template-columns:repeat(3,1fr)}.r-meta{display:block}.r-previews{grid-template-columns:1fr}.r-table-wrap{overflow-x:auto}}.r-text-samples{margin:14px 0;break-inside:avoid}.r-text-samples h3{margin:12px 0 7px}.r-text-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}.r-text-chip{min-width:0;border:1px solid #cfd9e5;border-radius:7px;padding:11px 7px;text-align:center;print-color-adjust:exact;-webkit-print-color-adjust:exact}.r-text-chip strong{display:block;font-size:20px;line-height:1.25}.r-text-chip small{display:block;font-size:10px;margin-top:5px;color:inherit}.r-text-chip em{display:block;font-size:9px;margin-top:4px;font-style:normal;color:inherit}.r-text-samples .r-note{margin-top:8px}@media(max-width:620px) and (not print){.r-text-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}";
+
+  // Relatório independente da interface: os mesmos dados alimentam
+  // impressão, HTML, JSON, TXT e JPEG, sem alterar o estado do projeto.
+  function reportData(){
+    const black="#000000",white="#FFFFFF";
+    const wcag=r=>({aaNormal:r>=4.5,aaGrande:r>=3,aaaNormal:r>=7,aaaGrande:r>=4.5});
+    return {
+      app:"Itten",version:4,kind:"estudo-cromatico-completo",
+      name:projectName(),generatedAt:new Date().toISOString(),
+      bases:[...state.bases],harmony:state.harmony,
+      harmonyLabel:$("harmony").selectedOptions[0]?.textContent?.trim()||state.harmony,
+      count:palette.length,palette:[...palette],
+      simulations:Object.fromEntries(["protanopia","deuteranopia","tritanopia"].map(type=>[type,palette.map(hex=>simulate(hex,type))])),
+      accessibility:{standard:"WCAG 2.1 - contraste de texto",thresholds:{aaNormal:4.5,aaGrande:3,aaaNormal:7,aaaGrande:4.5},
+        fixedBackgrounds:[white,"#10141D"],
+        perColor:palette.map((hex,i)=>({index:i+1,hex,
+          black:{ratio:contrast(hex,black),...wcag(contrast(hex,black))},
+          white:{ratio:contrast(hex,white),...wcag(contrast(hex,white))},
+          dark:{ratio:contrast(hex,"#10141D"),...wcag(contrast(hex,"#10141D"))}})),
+        selectedPair:{foreground:$("foreground").value,background:$("backgroundColor").value,
+          ratio:contrast($("foreground").value,$("backgroundColor").value),
+          ...wcag(contrast($("foreground").value,$("backgroundColor").value))}},
+      preview:{lightBackground:"#FFFFFF",darkBackground:"#10141D",primary:palette[0],secondary:palette[1]||palette[0],accent:palette[2]||palette[0]},
+      gradients:{...gradients},cssTokens:cssTokens(),tailwindTokens:tailwindTokens(),
+      notes:{simulations:"Aproximações RGB ilustrativas; não reproduzem a experiência visual individual nem constituem avaliação clínica.",
+        contrast:"As razões WCAG referem-se a pares de cores específicos; aprovação em um par não garante acessibilidade de toda a interface.",
+        preview:"Exemplos conceituais em fundos claro e escuro; verificar o contraste dos componentes reais.",
+        gradients:"Transições CSS derivadas da paleta; o contraste pode variar ao longo da superfície."}
+    };
+  }
+  function escapeReport(value){return String(value).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
+  function reportMarkup(d){
+    const e=escapeReport;
+    const swatches=(colors,label)=>`<div class="r-swatches">${colors.map((hex,i)=>`<div class="r-swatch"><div class="r-color" style="background:${hex}"></div><div class="r-swatch-label">${e(label)} ${i+1}<br><b>${hex}</b></div></div>`).join("")}</div>`;
+    const section=(n,title,description,body)=>`<section class="r-section"><h2><span>${n}</span>${title}</h2><p class="r-description">${description}</p>${body}</section>`;
+    const rows=d.accessibility.perColor.map(x=>`<tr><td><span class="r-dot" style="background:${x.hex}"></span> ${x.hex}</td><td>${x.black.ratio.toFixed(2)}:1</td><td>${x.white.ratio.toFixed(2)}:1</td><td>${x.dark.ratio.toFixed(2)}:1</td><td>${x.black.aaaNormal?"AAA":x.black.aaNormal?"AA":"—"}</td><td>${x.white.aaaNormal?"AAA":x.white.aaNormal?"AA":"—"}</td></tr>`).join("");
+    // Amostras com as duas orientações: texto neutro sobre cor e cor sobre fundo neutro.
+    const textSamples=`<div class="r-text-samples">
+      <h3>Texto preto e branco sobre cada cor da paleta</h3>
+      <div class="r-text-grid">${d.accessibility.perColor.map(x=>`<div class="r-text-chip" style="background:${x.hex}"><strong style="color:#000000">Aa preto</strong><strong style="color:#FFFFFF">Aa branco</strong><small style="color:${readable(x.hex)}">${x.hex}</small></div>`).join("")}</div>
+      <h3>Texto nas cores da paleta sobre fundo branco</h3>
+      <div class="r-text-grid">${d.accessibility.perColor.map(x=>`<div class="r-text-chip" style="background:#FFFFFF;color:${x.hex}"><strong>Aa · Texto</strong><small>${x.hex} · ${x.white.ratio.toFixed(2)}:1</small><em>${x.white.aaaNormal?"AAA":x.white.aaNormal?"AA":"Não atende AA normal"}</em></div>`).join("")}</div>
+      <h3>Texto nas cores da paleta sobre fundo preto</h3>
+      <div class="r-text-grid">${d.accessibility.perColor.map(x=>`<div class="r-text-chip" style="background:#000000;color:${x.hex}"><strong>Aa · Texto</strong><small>${x.hex} · ${x.black.ratio.toFixed(2)}:1</small><em>${x.black.aaaNormal?"AAA":x.black.aaNormal?"AA":"Não atende AA normal"}</em></div>`).join("")}</div>
+      <p class="r-note">Os valores indicam a razão de contraste WCAG 2.1 para texto colorido sobre branco ou preto. As amostras com contraste insuficiente são mantidas para comparação, não como recomendação de uso.</p>
+    </div>`;
+    const previews=["light","dark"].map(mode=>{const bg=mode==="light"?d.preview.lightBackground:d.preview.darkBackground;const surface=mode==="light"?"#F3F4F6":"#202938";return `<div class="r-preview" style="background:${bg};color:${readable(bg)}"><small>${mode==="light"?"INTERFACE CLARA":"INTERFACE ESCURA"}</small><div class="r-preview-inner" style="background:${surface};color:${readable(surface)}"><b>Seu próximo projeto</b><p>Exemplo de hierarquia e aplicação das cores.</p><span class="r-preview-button" style="background:${d.preview.primary};color:${readable(d.preview.primary)}">Ação principal</span><span class="r-preview-button" style="background:${d.preview.secondary};color:${readable(d.preview.secondary)}">Secundária</span><div class="r-accent" style="background:${d.preview.accent}"></div></div></div>`;}).join("");
+    const gradientNames={linear:"Linear",radial:"Radial",mesh:"Composto (mesh)"};
+    return `<div class="r-cover"><div class="r-kicker">ITTEN · LABORATÓRIO CROMÁTICO</div><h1>Estudo cromático completo</h1><p>Relatório técnico e visual do projeto <strong>${e(d.name)}</strong></p><div class="r-meta"><div><small>HARMONIA</small><b>${e(d.harmonyLabel)}</b></div><div><small>QUANTIDADE</small><b>${d.count} cores</b></div><div><small>GERADO EM</small><b>${new Date(d.generatedAt).toLocaleString("pt-BR")}</b></div></div></div>
+    ${section("01","Cores-base","Três cores de partida que definem a direção cromática do estudo.",swatches(d.bases,"Base"))}
+    ${section("02","Paleta gerada e harmonia",`Harmonia ${e(d.harmonyLabel)} · ${d.count} cores. As cores são derivadas matematicamente das bases por transformações no espaço HSL.`,swatches(d.palette,"Cor"))}
+    ${section("03","Simulações de daltonismo","Representações aproximadas da paleta sob três condições de percepção cromática; compare a distinção entre as amostras.",Object.entries(d.simulations).map(([key,colors])=>`<h3>${({protanopia:"Protanopia",deuteranopia:"Deuteranopia",tritanopia:"Tritanopia"})[key]}</h3>${swatches(colors,"Cor")}`).join("")+`<p class="r-note">${e(d.notes.simulations)}</p>`)}
+    ${section("04","Laboratório de acessibilidade","Razões de contraste WCAG 2.1 para cada cor da paleta sobre preto, branco e fundo escuro do laboratório.",`<div class="r-table-wrap"><table><thead><tr><th>Cor</th><th>Sobre preto</th><th>Sobre branco</th><th>Sobre escuro</th><th>Preto: texto normal</th><th>Branco: texto normal</th></tr></thead><tbody>${rows}</tbody></table></div><p class="r-note">AA normal ≥ 4,5:1; AA grande ≥ 3:1; AAA normal ≥ 7:1; AAA grande ≥ 4,5:1. Os selos AA/AAA da tabela referem-se apenas a texto normal.</p>${textSamples}<h3>Combinação selecionada no laboratório</h3><div class="r-selected"><div style="background:${d.accessibility.selectedPair.background};color:${d.accessibility.selectedPair.foreground}">Exemplo de título e texto legível</div><p>Texto: <b>${d.accessibility.selectedPair.foreground}</b> · Fundo: <b>${d.accessibility.selectedPair.background}</b> · Razão: <b>${d.accessibility.selectedPair.ratio.toFixed(2)}:1</b><br>AA normal: ${d.accessibility.selectedPair.aaNormal?"Aprovado":"Reprovado"} · AA grande: ${d.accessibility.selectedPair.aaGrande?"Aprovado":"Reprovado"} · AAA normal: ${d.accessibility.selectedPair.aaaNormal?"Aprovado":"Reprovado"} · AAA grande: ${d.accessibility.selectedPair.aaaGrande?"Aprovado":"Reprovado"}</p></div><p class="r-note">${e(d.notes.contrast)}</p>`)}
+    ${section("05","Preview Lab","Prévia ilustrativa de componentes de interface em temas claro e escuro, usando as cores principal, secundária e de destaque.",`<div class="r-previews">${previews}</div><p class="r-note">${e(d.notes.preview)}</p>`)}
+    ${section("06","Gradientes","Três transições CSS geradas a partir das cores do projeto.",Object.entries(d.gradients).map(([key,css])=>`<div class="r-gradient"><div style="background:${css}"></div><strong>${gradientNames[key]||e(key)}</strong><code>${e(css)}</code></div>`).join("")+`<p class="r-note">${e(d.notes.gradients)}</p>`)}
+    ${section("07","Tokens CSS","Variáveis prontas para integrar as cores-base e a paleta a outros projetos.",`<pre>${e(d.cssTokens)}</pre>`)}
+    ${section("08","Orientações de uso","Leitura prática dos resultados deste estudo.",`<div class="r-guidance"><p><b>Consistência.</b> Utilize os tokens CSS para preservar a identidade cromática em todas as telas.</p><p><b>Acessibilidade.</b> Priorize pares que atendam ao menos AA e avalie também estados de foco, ícones e elementos interativos.</p><p><b>Inclusão.</b> Não dependa apenas da cor para transmitir informação; use texto, formas ou padrões.</p><p><b>Validação.</b> As simulações e previews são ferramentas auxiliares; valide a interface final nos contextos reais de uso.</p></div>`)}
+    <footer class="r-footer">Itten — Laboratório Cromático · Estudo gerado localmente · ${e(d.name)}</footer>`;
+  }
   function printReport(){
-    $("printProjectName").textContent=`Projeto: ${projectName()}`;
-    $("printMetadata").textContent=`Harmonia: ${$("harmony").selectedOptions[0].textContent} · Quantidade: ${palette.length} cores`;
-    function fill(id,colors,prefix){const target=$(id);target.replaceChildren();colors.forEach((hex,i)=>{
-      const card=document.createElement("div");card.className="print-swatch";
-      const color=document.createElement("div");color.className="print-swatch-color";color.style.backgroundColor=hex;
-      const label=document.createElement("div");label.className="print-swatch-label";label.textContent=`${prefix} ${i+1} · ${hex}`;
-      card.append(color,label);target.append(card);
-    });}
-    fill("printBases",state.bases,"Base");fill("printPalette",palette,"Cor");
+    const report=$("printReport");
+    report.innerHTML=reportMarkup(reportData());
   }
 
   function validateProject(obj) {
@@ -296,7 +349,7 @@
     const count=Number(obj.count);
     if(![5,6,8,10,12].includes(count))
       throw Error("Quantidade inválida");
- return {bases,harmony:obj.harmony,count};
+    return {bases,harmony:obj.harmony,count};
   }
 
   function load(){
@@ -549,72 +602,82 @@
     setTimeout(()=>URL.revokeObjectURL(url),10000);
   }
 
-  function exportJSON() {
-    const obj={
-      app:"Itten",
-      version:2,
-      name:projectName(),
-      ...state,
-      palette:[...palette]
-    };
-    downloadBlob(new Blob([JSON.stringify(obj,null,2)],{
-      type:"application/json"
-    }),fileName("json"));
+  function exportJSON(){
+    // Mantém os campos antigos na raiz para compatibilidade com importJSON.
+    const d=reportData();
+    downloadBlob(new Blob([JSON.stringify({...d,harmony:state.harmony,count:state.count},null,2)],{type:"application/json"}),fileName("json"));
   }
-
-  function exportTXT() {
-    const text=[
-      "ITTEN — PALETA CROMÁTICA",
-      `Projeto: ${projectName()}`,
-      `Harmonia: ${state.harmony}`,
-      "Cores-base:",
-      ...state.bases.map((c,i)=>`Base ${i+1}: ${c}`),
-      "Paleta gerada:",
-      "",
-      ...palette.map((c,i)=>`Cor ${i+1}: ${c}`)
-    ].join("\n");
-    downloadBlob(new Blob([text],{type:"text/plain;charset=utf-8"}),
-      fileName("txt"));
+  function reportText(d){
+    const lines=["ITTEN — ESTUDO CROMÁTICO COMPLETO",`Projeto: ${d.name}`,`Data: ${new Date(d.generatedAt).toLocaleString("pt-BR")}`,`Harmonia: ${d.harmonyLabel}`,`Quantidade: ${d.count}`,
+      "\n01 — CORES-BASE",...d.bases.map((c,i)=>`Base ${i+1}: ${c}`),"\n02 — PALETA",...d.palette.map((c,i)=>`Cor ${i+1}: ${c}`),
+      "\n03 — SIMULAÇÕES DE DALTONISMO",d.notes.simulations];
+    for(const [type,colors] of Object.entries(d.simulations))lines.push(type.toUpperCase(),...colors.map((c,i)=>`Cor ${i+1}: ${c}`));
+    lines.push("\n04 — ACESSIBILIDADE WCAG 2.1","AA normal ≥ 4.5:1; AA grande ≥ 3:1; AAA normal ≥ 7:1; AAA grande ≥ 4.5:1");
+    for(const x of d.accessibility.perColor)lines.push(`${x.hex} | preto ${x.black.ratio.toFixed(2)}:1 (AA ${x.black.aaNormal}, AAA ${x.black.aaaNormal}) | branco ${x.white.ratio.toFixed(2)}:1 (AA ${x.white.aaNormal}, AAA ${x.white.aaaNormal}) | escuro ${x.dark.ratio.toFixed(2)}:1 (AA ${x.dark.aaNormal}, AAA ${x.dark.aaaNormal})`);
+    lines.push("Amostras de texto: texto branco e preto sobre cada cor; texto em cada cor sobre fundo branco; texto em cada cor sobre fundo preto.","O contraste é simétrico: os valores de texto colorido sobre branco/preto correspondem às colunas branco/preto da tabela.");
+    const p=d.accessibility.selectedPair;lines.push(`Par selecionado: ${p.foreground} sobre ${p.background}: ${p.ratio.toFixed(2)}:1; AA normal ${p.aaNormal}; AA grande ${p.aaGrande}; AAA normal ${p.aaaNormal}; AAA grande ${p.aaaGrande}`,d.notes.contrast);
+    lines.push("\n05 — PREVIEW LAB",`Claro: ${d.preview.lightBackground}; escuro: ${d.preview.darkBackground}; primária: ${d.preview.primary}; secundária: ${d.preview.secondary}; destaque: ${d.preview.accent}`,d.notes.preview,"\n06 — GRADIENTES",...Object.entries(d.gradients).map(([k,v])=>`${k}: ${v}`),d.notes.gradients,"\n07 — TOKENS CSS",d.cssTokens,"\n08 — ORIENTAÇÕES","Consistência: reutilize tokens. Acessibilidade: teste pares reais. Inclusão: não use apenas cor. Validação: confira o produto final.");
+    return lines.join("\n");
   }
-
-  function exportCSS() {
-    downloadBlob(new Blob([cssTokens()],{type:"text/css;charset=utf-8"}),
-      fileName("css"));
+  function exportTXT(){downloadBlob(new Blob([reportText(reportData())],{type:"text/plain;charset=utf-8"}),fileName("txt"));}
+  function exportCSS(){downloadBlob(new Blob([cssTokens()],{type:"text/css;charset=utf-8"}),fileName("css"));}
+  function exportTailwind(){downloadBlob(new Blob([tailwindTokens()],{type:"text/javascript;charset=utf-8"}),fileName("tailwind.config.js"));}
+  function exportHTML(){
+    const d=reportData();
+    const html=`<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${escapeReport(d.name)} — Itten</title><style>${REPORT_CSS}</style></head><body><main class="print-report">${reportMarkup(d)}</main></body></html>`;
+    downloadBlob(new Blob([html],{type:"text/html;charset=utf-8"}),fileName("html"));
   }
-
-  function exportTailwind() {
-    downloadBlob(new Blob([tailwindTokens()],{
-      type:"text/javascript;charset=utf-8"
-    }),fileName("tailwind.config.js"));
-  }
-
   function exportJPEG(){
-    const width=1400,margin=64,gap=16,cols=3,cellW=(width-margin*2-gap*(cols-1))/cols,cellH=190;
-    const baseY=270,paletteY=baseY+cellH+110,rows=Math.ceil(palette.length/cols);
-    const canvas=document.createElement("canvas");canvas.width=width;canvas.height=paletteY+rows*(cellH+gap)+margin;
-    const ctx=canvas.getContext("2d");if(!ctx){toast("Canvas indisponível");return;}
-    ctx.fillStyle="#fff";ctx.fillRect(0,0,canvas.width,canvas.height);
-    ctx.fillStyle="#17202D";ctx.font="bold 55px system-ui";ctx.fillText("Itten",margin,78);
-    ctx.font="bold 30px system-ui";ctx.fillText(`Projeto: ${projectName()}`.slice(0,64),margin,132);
-    ctx.font="24px system-ui";ctx.fillText(`Harmonia: ${state.harmony} · ${palette.length} cores`,margin,175);
-    const title=(text,y)=>{ctx.fillStyle="#17202D";ctx.font="bold 28px system-ui";ctx.fillText(text,margin,y);};
-    const swatch=(hex,i,y,prefix)=>{const x=margin+(i%cols)*(cellW+gap),yy=y+Math.floor(i/cols)*(cellH+gap);
-      ctx.fillStyle=hex;ctx.fillRect(x,yy,cellW,cellH);ctx.fillStyle=readable(hex);ctx.font="bold 28px system-ui";ctx.fillText(`${prefix} ${i+1} · ${hex}`,x+18,yy+cellH-22);};
-    title("Cores-base",baseY-25);state.bases.forEach((c,i)=>swatch(c,i,baseY,"Base"));
-    title("Paleta gerada",paletteY-25);palette.forEach((c,i)=>swatch(c,i,paletteY,"Cor"));
-    canvas.toBlob(blob=>{if(blob)downloadBlob(blob,fileName("jpg"));else toast("Falha ao gerar JPEG");},"image/jpeg",.94);
-  }
-
-  async function importJSON(file){
-    if(!file)return;if(file.size>1024*1024){toast("JSON muito grande");return;}
-    try{
-      const obj=JSON.parse(await file.text());const data=validateProject(obj);
-      let name=typeof obj.name==="string"?obj.name.trim().slice(0,80):"Projeto importado";
-      if(!name)name="Projeto importado";
-      const original=name;let n=2;while(!uniqueName(name))name=`${original} (${n++})`;
-      addProject(name,data);extracted=[];$("extracted").replaceChildren();$("applyExtracted").disabled=true;
-      toast(`Projeto importado: ${name}`);
-    }catch(err){toast("Importação recusada: "+err.message);}
+    // Relatório JPEG completo em uma imagem longa, sem bibliotecas externas.
+    const d=reportData(),W=1400,P=64,inner=W-P*2;
+    const c=document.createElement("canvas");c.width=W;
+    const ctx=c.getContext("2d");if(!ctx){toast("Canvas indisponível");return;}
+    // Medição de layout primeiro, para evitar cortes em relatórios extensos.
+    const commands=[];let y=55;
+    const line=(s,size=23,bold=false,color="#243248",indent=0)=>{commands.push({kind:"text",s:String(s),y,size,bold,color,indent});y+=size*1.65;};
+    const section=(n,t,desc)=>{y+=24;commands.push({kind:"bar",y});y+=48;line(`${n}  ${t}`,29,true);line(desc,19,false,"#526176");y+=8;};
+    const colors=(values,label)=>{values.forEach((hex,i)=>{const col=i%6,row=Math.floor(i/6),x=P+col*214;commands.push({kind:"swatch",x,y:y+row*156,hex,label:`${label} ${i+1}`,value:hex});});y+=Math.ceil(values.length/6)*156+10;};
+    const wrap=(text,size=20,indent=0)=>{const max=92;for(const paragraph of String(text).split("\n")){if(!paragraph){y+=size;continue;}let current="";for(const word of paragraph.split(/\s+/)){if((current+" "+word).length>max){line(current,size,false,"#344156",indent);current=word;}else current+=(current?" ":"")+word;}if(current)line(current,size,false,"#344156",indent);}};
+    line("ITTEN  /  LABORATÓRIO CROMÁTICO",25,true,"#3A64B4");line("Estudo cromático completo",43,true);wrap(`Projeto: ${d.name} | Harmonia: ${d.harmonyLabel} | ${d.count} cores | ${new Date(d.generatedAt).toLocaleString("pt-BR")}`);
+    section("01","Cores-base","Três cores que orientam o estudo.");colors(d.bases,"Base");
+    section("02","Paleta e harmonia",`Harmonia ${d.harmonyLabel} | ${d.count} cores.`);colors(d.palette,"Cor");
+    section("03","Simulações de daltonismo","Representações RGB aproximadas, não clínicas.");for(const [key,values] of Object.entries(d.simulations)){line(key.toUpperCase(),23,true);colors(values,"Cor");}
+    section("04","Laboratório de acessibilidade","Contraste WCAG 2.1: preto, branco e fundo escuro.");
+    for(const x of d.accessibility.perColor)line(`${x.hex}    Preto ${x.black.ratio.toFixed(2)}:1 [${x.black.aaaNormal?"AAA":x.black.aaNormal?"AA":"—"}]    Branco ${x.white.ratio.toFixed(2)}:1 [${x.white.aaaNormal?"AAA":x.white.aaNormal?"AA":"—"}]    Escuro ${x.dark.ratio.toFixed(2)}:1`,20);
+    line("AMOSTRAS DE TEXTO — PRETO E BRANCO SOBRE AS CORES",23,true);
+    for(const x of d.accessibility.perColor){commands.push({kind:"textSample",y,hex:x.hex,mode:"both",ratio:x.black.ratio});y+=65;}
+    line("AMOSTRAS DE TEXTO — CORES SOBRE FUNDO BRANCO",23,true);
+    for(const x of d.accessibility.perColor){commands.push({kind:"textSample",y,hex:x.hex,mode:"white",ratio:x.white.ratio});y+=65;}
+    line("AMOSTRAS DE TEXTO — CORES SOBRE FUNDO PRETO",23,true);
+    for(const x of d.accessibility.perColor){commands.push({kind:"textSample",y,hex:x.hex,mode:"black",ratio:x.black.ratio});y+=65;}
+    wrap("AA normal 4,5:1 | AA grande 3:1 | AAA normal 7:1 | AAA grande 4,5:1");
+    const pair=d.accessibility.selectedPair;wrap(`Par selecionado: ${pair.foreground} / ${pair.background} = ${pair.ratio.toFixed(2)}:1; AA normal ${pair.aaNormal?"sim":"não"}; AA grande ${pair.aaGrande?"sim":"não"}; AAA normal ${pair.aaaNormal?"sim":"não"}; AAA grande ${pair.aaaGrande?"sim":"não"}.`);
+    section("05","Preview Lab","Esquemas de aplicação em tema claro e escuro.");commands.push({kind:"previews",y,preview:d.preview});y+=210;
+    section("06","Gradientes","Linear, radial e composto (mesh).");for(const [name,css] of Object.entries(d.gradients)){commands.push({kind:"gradient",y,name,css});y+=150;wrap(`${name}: ${css}`,17);}
+    section("07","Tokens CSS","Variáveis para integração em outros projetos.");for(const ln of d.cssTokens.split("\n"))line(ln,19,false,"#25384C",18);
+    section("08","Orientações","Aplicação, acessibilidade, inclusão e validação.");wrap("Use tokens para consistência. Priorize pares com contraste AA ou AAA. Não dependa exclusivamente da cor para comunicar informações. Valide a interface final e interprete as simulações como aproximações.");
+    const H=Math.ceil(y+80);if(H>32000){toast("Relatório JPEG excede o limite do navegador; use HTML ou impressão em PDF");return;}c.height=H;
+    ctx.fillStyle="#FFFFFF";ctx.fillRect(0,0,W,H);
+    for(const cmd of commands){
+      if(cmd.kind==="bar"){ctx.fillStyle="#172C49";ctx.fillRect(P,cmd.y,inner,7);}
+      if(cmd.kind==="text"){ctx.fillStyle=cmd.color;ctx.font=`${cmd.bold?"700":"400"} ${cmd.size}px system-ui`;ctx.fillText(cmd.s,P+cmd.indent,cmd.y,inner-cmd.indent);}
+      if(cmd.kind==="swatch"){ctx.fillStyle=cmd.hex;ctx.fillRect(cmd.x,cmd.y,194,102);ctx.fillStyle="#243248";ctx.font="17px system-ui";ctx.fillText(cmd.label,cmd.x,cmd.y+123);ctx.font="bold 19px system-ui";ctx.fillText(cmd.value,cmd.x,cmd.y+147);}
+      if(cmd.kind==="textSample"){
+        const bg=cmd.mode==="both"?cmd.hex:cmd.mode==="white"?"#FFFFFF":"#000000";
+        ctx.fillStyle=bg;ctx.fillRect(P,cmd.y-34,inner,54);
+        ctx.font="bold 23px system-ui";
+        if(cmd.mode==="both"){
+          ctx.fillStyle="#000000";ctx.fillText("Aa preto",P+18,cmd.y);
+          ctx.fillStyle="#FFFFFF";ctx.fillText("Aa branco",P+210,cmd.y);
+          ctx.fillStyle=readable(bg);ctx.fillText(cmd.hex,P+inner-190,cmd.y);
+        }else{
+          ctx.fillStyle=cmd.hex;ctx.fillText(`Aa · Texto ${cmd.hex}  |  ${cmd.ratio.toFixed(2)}:1`,P+18,cmd.y);
+        }
+      }
+      if(cmd.kind==="previews"){for(const [i,bg] of [cmd.preview.lightBackground,cmd.preview.darkBackground].entries()){const x=P+i*655;ctx.fillStyle=bg;ctx.fillRect(x,cmd.y,635,180);ctx.fillStyle=i?"#FFFFFF":"#18263D";ctx.font="bold 24px system-ui";ctx.fillText(i?"DARK UI":"LIGHT UI",x+20,cmd.y+42);ctx.fillStyle=cmd.preview.primary;ctx.fillRect(x+20,cmd.y+75,180,65);ctx.fillStyle=cmd.preview.secondary;ctx.fillRect(x+218,cmd.y+75,180,65);ctx.fillStyle=cmd.preview.accent;ctx.fillRect(x+416,cmd.y+75,190,65);}}
+      if(cmd.kind==="gradient"){const x=P,w=inner,h=78;const stops=d.palette;const g=ctx.createLinearGradient(x,cmd.y,x+w,cmd.y);stops.forEach((hex,i)=>g.addColorStop(i/(stops.length-1),hex));ctx.fillStyle=g;ctx.fillRect(x,cmd.y,w,h);ctx.fillStyle="#243248";ctx.font="bold 21px system-ui";ctx.fillText(cmd.name.toUpperCase(),x,cmd.y+110);}
+    }
+    c.toBlob(blob=>blob?downloadBlob(blob,fileName("jpg")):toast("Falha ao gerar JPEG"),"image/jpeg",.94);
   }
 
   // Quantização de cores: amostramos pixels, agrupamos em
@@ -840,7 +903,7 @@
       $("exportOptions").hidden=true;
       $("exportBtn").setAttribute("aria-expanded","false");
       const actions={
-        json:exportJSON,txt:exportTXT,jpeg:exportJPEG,
+        json:exportJSON,txt:exportTXT,jpeg:exportJPEG,html:exportHTML,
         css:exportCSS,tailwind:exportTailwind
       };
       actions[type]?.();
@@ -900,7 +963,7 @@
     });
   }
 
-  // A animação visual dura 2 segundos e nunca bloqueia a inicialização.
+  // A animação visual dura 3 segundos e nunca bloqueia a inicialização.
   // A classe é definida no HEAD, antes da primeira renderização.
   function finishSplash() {
     const splash=document.getElementById("ittenSplash");
@@ -911,7 +974,7 @@
     window.setTimeout(()=>{
       document.documentElement.classList.remove("itten-splash-active");
       splash?.remove();
-    },2000);
+    },3000);
   }
 
   async function init() {

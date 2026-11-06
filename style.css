@@ -292,7 +292,7 @@ html.itten-splash-active .itten-splash {
   background: #050509;
   color: #fff;
   pointer-events: auto;
-  animation: itten-splash-exit 2000ms ease-in-out both;
+  animation: itten-splash-exit 3000ms ease-in-out both;
 }
 .itten-splash-center {
   position: relative;
@@ -312,7 +312,7 @@ html.itten-splash-active .itten-splash {
   background: conic-gradient(from 30deg, #3457d5, #ae64b6, #d65a83, #f2a93b, #4bbca0, #3457d5);
   filter: blur(62px);
   opacity: 0;
-  animation: itten-halo 2000ms ease-in-out both;
+  animation: itten-halo 3000ms ease-in-out both;
 }
 .itten-splash-logo {
   display: block;
@@ -321,7 +321,7 @@ html.itten-splash-active .itten-splash {
   object-fit: contain;
   border-radius: 24px;
   opacity: 0;
-  animation: itten-logo 2000ms cubic-bezier(.2,.7,.2,1) both;
+  animation: itten-logo 3000ms cubic-bezier(.2,.7,.2,1) both;
 }
 .itten-splash-name {
   margin-top: 28px;
@@ -329,7 +329,7 @@ html.itten-splash-active .itten-splash {
   letter-spacing: .38em;
   padding-left: .38em;
   opacity: 0;
-  animation: itten-wordmark 2000ms ease-out both;
+  animation: itten-wordmark 3000ms ease-out both;
 }
 .itten-splash-subtitle {
   margin-top: 11px;
@@ -338,7 +338,7 @@ html.itten-splash-active .itten-splash {
   padding-left: .23em;
   color: #c8c9d3;
   opacity: 0;
-  animation: itten-wordmark 2000ms ease-out both;
+  animation: itten-wordmark 3000ms ease-out both;
 }
 @keyframes itten-logo {
   0%, 8% { opacity: 0; transform: scale(.78); filter: brightness(.65); }
@@ -396,3 +396,6 @@ html.itten-splash-active .itten-splash {
   .print-report h1{font-size:24pt;margin:0 0 12px}.print-report h2{font-size:17pt;margin:0 0 8px}.print-report h3{margin:24px 0 12px}.print-report p{color:#333!important}
   .print-swatch-color{print-color-adjust:exact;-webkit-print-color-adjust:exact}
 }
+
+/* ITTEN v5 — estilos do relatório, invisível na interface normal */
+@page{size:A4;margin:14mm 12mm}*{box-sizing:border-box}body{font-family:Arial,system-ui,sans-serif;background:#fff;color:#18283d;margin:0}.print-report{display:block!important;max-width:960px;margin:auto;padding:20px}.r-cover{background:#142a49;color:#fff;padding:28px 32px;border-radius:12px;margin-bottom:24px}.r-kicker{font-size:11px;letter-spacing:2px;color:#b6c8e6}.r-cover h1{font-size:29px;margin:12px 0}.r-cover p{color:#e2eaf7!important}.r-meta{display:flex;gap:16px;margin-top:24px}.r-meta>div{flex:1;border-top:1px solid #7990af;padding-top:12px}.r-meta small{display:block;color:#b8c8e0;font-size:10px;letter-spacing:1px}.r-meta b{display:block;font-size:13px;margin-top:5px}.r-section{margin:0 0 25px;break-inside:auto;page-break-inside:auto}.r-section h2{display:flex;align-items:center;gap:10px;background:#eaf0f8;color:#183451;padding:11px 13px;font-size:17px;border-left:5px solid #3457d5;break-after:avoid}.r-section h2 span{font-size:12px;color:#3457d5}.r-section h3{font-size:14px;margin:17px 0 8px;break-after:avoid}.r-description{font-size:12px;line-height:1.5;color:#506176!important;margin:8px 0 13px}.r-swatches{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px;margin:8px 0 13px}.r-swatch{border:1px solid #d8e1ec;border-radius:7px;overflow:hidden;break-inside:avoid}.r-color{height:55px;print-color-adjust:exact;-webkit-print-color-adjust:exact}.r-swatch-label{padding:6px;font-size:10px;line-height:1.5;color:#25364c}.r-swatch-label b{font-size:11px}.r-note{font-size:11px!important;background:#edf3fb;color:#45556d!important;padding:10px;border-radius:6px;line-height:1.5}.r-table-wrap{overflow:visible}table{width:100%;border-collapse:collapse;font-size:10px}th{background:#172d49;color:#fff;text-align:left}th,td{padding:8px 5px;border-bottom:1px solid #dce5ef}tr{break-inside:avoid}td{white-space:nowrap}.r-dot{display:inline-block;width:13px;height:13px;border-radius:3px;vertical-align:middle;border:1px solid #ccc;print-color-adjust:exact;-webkit-print-color-adjust:exact}.r-selected>div{padding:18px;border-radius:7px;font-weight:bold;print-color-adjust:exact;-webkit-print-color-adjust:exact}.r-selected p{font-size:11px;line-height:1.6}.r-previews{display:grid;grid-template-columns:1fr 1fr;gap:12px}.r-preview{border:1px solid #d6e0eb;padding:14px;border-radius:8px;print-color-adjust:exact;-webkit-print-color-adjust:exact}.r-preview small{font-weight:bold;letter-spacing:1px}.r-preview-inner{margin-top:12px;padding:16px;border-radius:7px;print-color-adjust:exact;-webkit-print-color-adjust:exact}.r-preview-inner p{font-size:11px;color:inherit!important}.r-preview-button{display:inline-block;font-size:10px;font-weight:bold;border-radius:4px;padding:9px;margin:5px 5px 0 0;print-color-adjust:exact;-webkit-print-color-adjust:exact}.r-accent{height:8px;border-radius:4px;margin-top:12px;print-color-adjust:exact;-webkit-print-color-adjust:exact}.r-gradient{margin:12px 0;break-inside:avoid}.r-gradient>div{height:64px;border-radius:6px;print-color-adjust:exact;-webkit-print-color-adjust:exact}.r-gradient strong{display:block;margin:6px 0;font-size:12px}.r-gradient code{font-size:10px;overflow-wrap:anywhere;line-height:1.6}.r-section pre{background:#172d49;color:#e8f3ff;padding:18px;border-radius:8px;font-size:10px;line-height:1.6;white-space:pre-wrap;overflow-wrap:anywhere;print-color-adjust:exact;-webkit-print-color-adjust:exact}.r-guidance{font-size:12px;line-height:1.6}.r-footer{border-top:1px solid #dce5ef;margin-top:25px;padding-top:10px;color:#62738a;font-size:10px}@media print{html,body{background:#fff!important}.print-report{display:block!important;max-width:none;padding:0!important;margin:0!important}.r-cover{break-inside:avoid}.r-section h2{print-color-adjust:exact;-webkit-print-color-adjust:exact}.r-swatches{grid-template-columns:repeat(6,minmax(0,1fr))}}@media(max-width:620px) and (not print){.r-swatches{grid-template-columns:repeat(3,1fr)}.r-meta{display:block}.r-previews{grid-template-columns:1fr}.r-table-wrap{overflow-x:auto}}
